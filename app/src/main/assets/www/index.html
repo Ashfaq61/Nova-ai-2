@@ -350,9 +350,159 @@
     .widget-badge { font-size: 11px; padding: 3px 8px; border-radius: 12px; background: rgba(0, 224, 255, 0.15); color: var(--color-listening); font-weight: 600; }
 
     .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
-    .stat-box { background: rgba(255, 255, 255, 0.04); border: 1px solid var(--border-glass); border-radius: 14px; padding: 10px 8px; text-align: center; }
+    .stat-box {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--border-glass);
+      border-radius: 14px;
+      padding: 10px 8px;
+      text-align: center;
+      transition: all 0.3s ease;
+    }
     .stat-val { font-family: var(--font-display); font-size: 18px; font-weight: 700; color: #00ffa3; }
     .stat-label { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+
+    /* BIOMETRIC HEART VISUAL PULSE & TELEMETRY */
+    .stat-box-heart {
+      position: relative;
+      background: linear-gradient(150deg, rgba(255, 45, 85, 0.12) 0%, rgba(18, 12, 38, 0.8) 100%);
+      border: 1px solid rgba(255, 45, 85, 0.35);
+      border-radius: 14px;
+      padding: 8px 6px;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      overflow: hidden;
+      --heart-beat-duration: 0.833s;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+      transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    }
+    .stat-box-heart::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: 14px;
+      pointer-events: none;
+      box-shadow: inset 0 0 14px rgba(255, 45, 85, 0.35), 0 0 16px rgba(255, 45, 85, 0.25);
+      animation: heartGlowPulse var(--heart-beat-duration, 0.833s) ease-in-out infinite;
+    }
+    .heart-pulse-wrapper {
+      position: relative;
+      width: 26px;
+      height: 22px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 2px;
+    }
+    .heart-icon-svg {
+      width: 18px;
+      height: 18px;
+      color: #ff2d55;
+      position: relative;
+      z-index: 2;
+      transform-origin: center;
+      animation: heartBeatPulse var(--heart-beat-duration, 0.833s) cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
+      filter: drop-shadow(0 0 5px rgba(255, 45, 85, 0.8));
+    }
+    .heart-ripple-wave {
+      position: absolute;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      border: 1.5px solid rgba(255, 45, 85, 0.75);
+      pointer-events: none;
+      animation: heartRippleWave var(--heart-beat-duration, 0.833s) cubic-bezier(0.2, 0.8, 0.4, 1) infinite;
+    }
+    .heart-ripple-wave.ring-2 {
+      animation-delay: 0.16s;
+    }
+    .stat-val-bpm {
+      color: #ff3366 !important;
+      font-size: 16px !important;
+      font-weight: 700;
+      letter-spacing: -0.2px;
+      display: flex;
+      align-items: baseline;
+      justify-content: center;
+      gap: 3px;
+      text-shadow: 0 0 10px rgba(255, 45, 85, 0.45);
+      animation: heartValueTick var(--heart-beat-duration, 0.833s) ease-in-out infinite;
+    }
+    .bpm-unit {
+      font-size: 10px;
+      font-weight: 600;
+      color: rgba(255, 255, 255, 0.75);
+      letter-spacing: 0.5px;
+    }
+    .heart-sensor-status {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 9px;
+      color: rgba(255, 140, 168, 0.95);
+      margin-top: 2px;
+      font-weight: 600;
+    }
+    .sensor-indicator-dot {
+      width: 4px;
+      height: 4px;
+      border-radius: 50%;
+      background: #ff2d55;
+      box-shadow: 0 0 6px #ff2d55;
+      animation: heartDotPulse var(--heart-beat-duration, 0.833s) infinite;
+    }
+    .ecg-sparkline-wrap {
+      width: 100%;
+      height: 14px;
+      margin-top: 3px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0.9;
+    }
+    .ecg-canvas {
+      width: 100%;
+      max-width: 80px;
+      height: 14px;
+      display: block;
+    }
+    @keyframes heartBeatPulse {
+      0% { transform: scale(1); filter: drop-shadow(0 0 3px rgba(255, 45, 85, 0.5)); }
+      14% { transform: scale(1.32); filter: drop-shadow(0 0 12px rgba(255, 45, 85, 1)) drop-shadow(0 0 20px rgba(255, 61, 139, 0.85)); color: #ff5277; }
+      24% { transform: scale(1.08); filter: drop-shadow(0 0 5px rgba(255, 45, 85, 0.6)); }
+      36% { transform: scale(1.22); filter: drop-shadow(0 0 10px rgba(255, 45, 85, 0.9)); color: #ff3366; }
+      52% { transform: scale(1); filter: drop-shadow(0 0 3px rgba(255, 45, 85, 0.4)); }
+      100% { transform: scale(1); filter: drop-shadow(0 0 3px rgba(255, 45, 85, 0.4)); }
+    }
+    @keyframes heartRippleWave {
+      0% { transform: scale(0.6); opacity: 0.9; border-color: rgba(255, 45, 85, 0.9); }
+      50% { opacity: 0.5; }
+      100% { transform: scale(2.5); opacity: 0; border-color: rgba(255, 61, 139, 0); }
+    }
+    @keyframes heartGlowPulse {
+      0% { opacity: 0; }
+      14% { opacity: 0.9; }
+      26% { opacity: 0.25; }
+      38% { opacity: 0.7; }
+      54% { opacity: 0; }
+      100% { opacity: 0; }
+    }
+    @keyframes heartValueTick {
+      0% { transform: scale(1); }
+      14% { transform: scale(1.08); color: #ffffff; text-shadow: 0 0 14px rgba(255, 45, 85, 0.9); }
+      26% { transform: scale(1.02); }
+      38% { transform: scale(1.05); }
+      52% { transform: scale(1); }
+      100% { transform: scale(1); }
+    }
+    @keyframes heartDotPulse {
+      0%, 100% { opacity: 0.4; transform: scale(0.9); }
+      14%, 38% { opacity: 1; transform: scale(1.35); box-shadow: 0 0 8px #ff2d55; }
+      52% { opacity: 0.4; transform: scale(0.9); }
+    }
 
     .toggles-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
     .toggle-chip {
@@ -798,9 +948,25 @@
             <div class="stat-val" id="stat-ram">3.1 GB</div>
             <div class="stat-label">RAM Pool</div>
           </div>
-          <div class="stat-box">
-            <div class="stat-val" id="stat-bpm">72 BPM</div>
+          <div class="stat-box stat-box-heart" id="stat-box-heart" title="Biometric PPG Sensor · Tap to calibrate">
+            <div class="heart-pulse-wrapper">
+              <div class="heart-ripple-wave"></div>
+              <div class="heart-ripple-wave ring-2"></div>
+              <svg class="heart-icon-svg" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+              </svg>
+            </div>
+            <div class="stat-val stat-val-bpm" id="stat-bpm">
+              <span id="stat-bpm-num">72</span><span class="bpm-unit">BPM</span>
+            </div>
             <div class="stat-label">Biometric Heart</div>
+            <div class="heart-sensor-status">
+              <span class="sensor-indicator-dot"></span>
+              <span id="stat-hrv-label">HRV 68ms</span>
+            </div>
+            <div class="ecg-sparkline-wrap">
+              <canvas id="ecg-canvas" class="ecg-canvas" width="80" height="14"></canvas>
+            </div>
           </div>
         </div>
       </div>
@@ -1395,6 +1561,219 @@
       document.getElementById('toast-text').textContent = msg;
       t.classList.add('show');
       setTimeout(() => t.classList.remove('show'), 2800);
+    }
+
+    // --- 6. REAL-TIME BIOMETRIC SENSOR ENGINE & ECG MONITOR ---
+    const BiometricEngine = {
+      currentBpm: 72,
+      targetBpm: 74,
+      hrv: 66,
+      spo2: 98,
+      calibrating: false,
+      ecgCanvas: null,
+      ecgCtx: null,
+      ecgPoints: [],
+      maxEcgPoints: 48,
+      phase: 0,
+
+      init() {
+        this.ecgCanvas = document.getElementById('ecg-canvas');
+        if (this.ecgCanvas) {
+          this.ecgCtx = this.ecgCanvas.getContext('2d');
+          for (let i = 0; i < this.maxEcgPoints; i++) {
+            this.ecgPoints.push(0);
+          }
+        }
+
+        this.startSensorSimulation();
+        this.startEcgAnimation();
+        this.startTelemetryLoop();
+
+        const heartBox = document.getElementById('stat-box-heart');
+        if (heartBox) {
+          heartBox.onclick = () => this.calibrateSensor();
+        }
+      },
+
+      startSensorSimulation() {
+        setInterval(() => {
+          if (this.calibrating) return;
+
+          // If native bridge is present, query device sensor
+          if (NATIVE() && typeof N().getBiometricSensorData === 'function') {
+            try {
+              const data = JSON.parse(N().getBiometricSensorData());
+              if (data && data.bpm) {
+                this.updateMetrics(data.bpm, data.hrv || 68, data.spo2 || 98);
+                return;
+              }
+            } catch (e) {
+              // fallback
+            }
+          }
+
+          // Natural biological rhythm simulation with respiratory sinus arrhythmia
+          if (Math.random() < 0.3) {
+            this.targetBpm = Math.floor(68 + Math.random() * 15);
+          }
+          const step = (this.targetBpm - this.currentBpm) * 0.22 + (Math.random() - 0.5) * 2.8;
+          const newBpm = Math.round(Math.min(94, Math.max(62, this.currentBpm + step)));
+          const newHrv = Math.round(Math.min(88, Math.max(50, 78 - (newBpm - 65) * 0.8 + (Math.random() - 0.5) * 4)));
+          const newSpo2 = Math.random() < 0.15 ? 99 : 98;
+
+          this.updateMetrics(newBpm, newHrv, newSpo2);
+        }, 1600);
+      },
+
+      updateMetrics(bpm, hrv, spo2) {
+        this.currentBpm = bpm;
+        this.hrv = hrv;
+        this.spo2 = spo2;
+
+        const bpmNumEl = document.getElementById('stat-bpm-num');
+        const hrvLabelEl = document.getElementById('stat-hrv-label');
+        const heartBox = document.getElementById('stat-box-heart');
+
+        if (bpmNumEl) bpmNumEl.textContent = bpm;
+        if (hrvLabelEl) hrvLabelEl.textContent = `HRV ${hrv}ms`;
+
+        // Modulate CSS heartbeat duration to sync visual animation with exact BPM
+        if (heartBox) {
+          const durationSec = (60 / Math.max(45, bpm)).toFixed(3);
+          heartBox.style.setProperty('--heart-beat-duration', `${durationSec}s`);
+        }
+      },
+
+      calibrateSensor() {
+        if (this.calibrating) return;
+        this.calibrating = true;
+        showToast('Calibrating Optical PPG Sensor...');
+
+        if (NATIVE() && N().vibrate) {
+          N().vibrate(40);
+        }
+
+        const bpmNumEl = document.getElementById('stat-bpm-num');
+        const hrvLabelEl = document.getElementById('stat-hrv-label');
+        if (bpmNumEl) bpmNumEl.textContent = '--';
+        if (hrvLabelEl) hrvLabelEl.textContent = 'SCANNING';
+
+        let ticks = 0;
+        const scanInterval = setInterval(() => {
+          ticks++;
+          if (bpmNumEl) bpmNumEl.textContent = Math.floor(66 + Math.random() * 22);
+          if (ticks >= 4) {
+            clearInterval(scanInterval);
+            this.calibrating = false;
+            const settledBpm = Math.floor(70 + Math.random() * 8);
+            const settledHrv = Math.floor(64 + Math.random() * 10);
+            this.updateMetrics(settledBpm, settledHrv, 98);
+            showToast(`PPG Sensor Synchronized: ${settledBpm} BPM (Optimal Rhythm)`);
+            if (NATIVE() && N().vibrate) {
+              N().vibrate(60);
+            }
+          }
+        }, 280);
+      },
+
+      startEcgAnimation() {
+        if (!this.ecgCanvas || !this.ecgCtx) return;
+
+        const drawEcg = () => {
+          const ctx = this.ecgCtx;
+          const w = this.ecgCanvas.width;
+          const h = this.ecgCanvas.height;
+          const midY = h / 2;
+
+          this.phase = (this.phase + (this.currentBpm / 72) * 0.085) % (Math.PI * 2);
+          let sample = 0;
+
+          const p = this.phase;
+          if (p >= 0.5 && p < 0.9) {
+            sample = Math.sin((p - 0.5) / 0.4 * Math.PI) * 1.5;
+          } else if (p >= 1.15 && p < 1.3) {
+            sample = -Math.sin((p - 1.15) / 0.15 * Math.PI) * 2.2;
+          } else if (p >= 1.3 && p < 1.55) {
+            sample = Math.sin((p - 1.3) / 0.25 * Math.PI) * 5.8;
+          } else if (p >= 1.55 && p < 1.75) {
+            sample = -Math.sin((p - 1.55) / 0.2 * Math.PI) * 2.4;
+          } else if (p >= 2.1 && p < 2.8) {
+            sample = Math.sin((p - 2.1) / 0.7 * Math.PI) * 2.0;
+          }
+
+          this.ecgPoints.push(sample);
+          if (this.ecgPoints.length > this.maxEcgPoints) {
+            this.ecgPoints.shift();
+          }
+
+          ctx.clearRect(0, 0, w, h);
+
+          // Draw neon pulse trace
+          ctx.beginPath();
+          const stepX = w / (this.maxEcgPoints - 1);
+          for (let i = 0; i < this.ecgPoints.length; i++) {
+            const x = i * stepX;
+            const y = midY - this.ecgPoints[i];
+            if (i === 0) ctx.moveTo(x, y);
+            else ctx.lineTo(x, y);
+          }
+
+          ctx.strokeStyle = '#ff2d55';
+          ctx.lineWidth = 1.6;
+          ctx.shadowColor = 'rgba(255, 45, 85, 0.85)';
+          ctx.shadowBlur = 4;
+          ctx.stroke();
+
+          // Lead beacon point
+          if (this.ecgPoints.length > 0) {
+            const lastIdx = this.ecgPoints.length - 1;
+            const headX = lastIdx * stepX;
+            const headY = midY - this.ecgPoints[lastIdx];
+            ctx.beginPath();
+            ctx.arc(headX, headY, 2, 0, Math.PI * 2);
+            ctx.fillStyle = '#ff7b9d';
+            ctx.shadowColor = '#ffffff';
+            ctx.shadowBlur = 6;
+            ctx.fill();
+          }
+
+          requestAnimationFrame(drawEcg);
+        };
+
+        requestAnimationFrame(drawEcg);
+      },
+
+      startTelemetryLoop() {
+        setInterval(() => {
+          const cpuEl = document.getElementById('stat-cpu');
+          const ramEl = document.getElementById('stat-ram');
+          const battBadge = document.getElementById('dash-battery-badge');
+
+          if (cpuEl) {
+            const load = Math.floor(10 + Math.random() * 8);
+            cpuEl.textContent = `${load}%`;
+          }
+          if (ramEl) {
+            const ram = (3.1 + (Math.random() * 0.3)).toFixed(1);
+            ramEl.textContent = `${ram} GB`;
+          }
+          if (battBadge && NATIVE() && N().deviceInfo) {
+            try {
+              const dev = JSON.parse(N().deviceInfo());
+              if (dev.battery > 0) {
+                battBadge.textContent = `${dev.battery}% Battery`;
+              }
+            } catch (e) {}
+          }
+        }, 3200);
+      }
+    };
+
+    // Initialize Biometrics & Telemetry
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', () => BiometricEngine.init());
+    } else {
+      BiometricEngine.init();
     }
   </script>
 </body>

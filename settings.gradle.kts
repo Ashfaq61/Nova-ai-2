@@ -22,6 +22,6 @@ dependencyResolutionManagement {
   }
 }
 
-rootProject.name = "Nova AI"
+rootProject.name = "NovaAISingularity"
 
 include(":app")

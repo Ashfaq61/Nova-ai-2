@@ -1,4 +1,5 @@
 <resources>
     <string name="app_name">Nova AI</string>
-    <string name="accessibility_service_description">Nova AI Accessibility Service enables voice-directed taps, swipes, macros, and device automation.</string>
+    <string name="accessibility_desc">Nova AI needs accessibility to control your phone (tap, swipe, open apps).</string>
+    <string name="accessibility_service_description">Nova AI needs accessibility to control your phone (tap, swipe, open apps).</string>
 </resources>

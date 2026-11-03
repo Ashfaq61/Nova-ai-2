@@ -9,15 +9,15 @@ plugins {
 }
 
 android {
-  namespace = "com.example"
+  namespace = "com.nova.ai"
   compileSdk { version = release(36) { minorApiLevel = 1 } }
 
   defaultConfig {
-    applicationId = "com.aistudio.novaai.zqkypv"
+    applicationId = "com.nova.ai"
     minSdk = 24
     targetSdk = 36
-    versionCode = 1
-    versionName = "1.0"
+    versionCode = 10
+    versionName = "1.0.0-phase10"
 
     testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
   }

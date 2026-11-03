@@ -1,0 +1,1790 @@
+Generate a COMPLETE, production-ready Android project called "Nova AI Singularity Edition" that can be immediately pushed to GitHub and built via GitHub Actions into a working APK.
+
+This is Phase 10 of an evolving AI assistant project. The output must include ALL files needed for a successful Gradle build with zero manual intervention required after git push.
+
+═══════════════════════════════════════════
+PROJECT STRUCTURE REQUIREMENTS
+═══════════════════════════════════════════
+
+Generate these exact files in this exact structure:
+
+```
+nova-ai-singularity/
+├── .github/
+│   └── workflows/
+│       └── build.yml                    # GitHub Actions workflow
+├── app/
+│   ├── build.gradle.kts                 # App-level Gradle config
+│   ├── proguard-rules.pro               # ProGuard rules for release
+│   └── src/
+│       ├── main/
+│       │   ├── AndroidManifest.xml      # All permissions + components
+│       │   ├── java/com/nova/ai/
+│       │   │   ├── MainActivity.kt      # WebView host + JsBridge setup
+│       │   │   ├── NovaApplication.kt   # Application class for global init
+│       │   │   ├── bridge/
+│       │   │   │   └── JsBridge.kt      # JavaScript ↔ Kotlin bridge
+│       │   │   ├── services/
+│       │   │   │   ├── NovaAccessibilityService.kt
+│       │   │   │   ├── NovaNotificationListener.kt
+│       │   │   │   ├── WakeWordService.kt
+│       │   │   │   ├── ScreenCaptureService.kt
+│       │   │   │   └── MeshNetworkService.kt
+│       │   │   ├── ai/
+│       │   │   │   ├── LlmManager.kt    # Multi-LLM failover system
+│       │   │   │   ├── AiInteropBridge.kt # Cross-AI communication
+│       │   │   │   ├── DistributedCognition.kt # Hive mind logic
+│       │   │   │   ├── MetaCognition.kt # Self-awareness simulation
+│       │   │   │   └── UniversalTranslator.kt # Real-time translation
+│       │   │   ├── utils/
+│       │   │   │   ├── PrivacyScrubber.kt # PII removal before cloud calls
+│       │   │   │   ├── RoutineEngine.kt   # Macro/routine execution
+│       │   │   │   ├── PredictiveEngine.kt # Behavior prediction
+│       │   │   │   ├── KnowledgeGraph.kt  # SQLite-based memory
+│       │   │   │   ├── UpdateChecker.kt   # Auto-update mechanism
+│       │   │   │   └── DeviceControl.kt   # Torch/volume/brightness/etc
+│       │   │   └── receivers/
+│       │   │       └── BootReceiver.kt    # Restart services after reboot
+│       │   ├── assets/
+│       │   │   └── www/
+│       │   │       └── index.html         # Complete UI (orb + chat + settings)
+│       │   └── res/
+│       │       ├── values/
+│       │       │   ├── strings.xml
+│       │       │   ├── themes.xml
+│       │       │   └── colors.xml
+│       │       ├── xml/
+│       │       │   ├── accessibility_service_config.xml
+│       │       │   └── file_paths.xml
+│       │       └── mipmap-hdpi/           # Placeholder icon references
+│       └── test/
+│           └── java/com/nova/ai/
+│               └── ExampleUnitTest.kt     # Basic sanity tests
+├── build.gradle.kts                     # Project-level Gradle config
+├── settings.gradle.kts                  # Module includes
+├── gradle.properties                    # Gradle JVM args
+├── gradle/
+│   └── wrapper/
+│       ├── gradle-wrapper.jar           # Binary wrapper (describe how to generate)
+│       └── gradle-wrapper.properties    # Wrapper version config
+├── gradlew                              # Unix Gradle wrapper script
+├── gradlew.bat                          # Windows Gradle wrapper script
+├── .gitignore                           # Android-specific ignores
+├── README.md                            # Setup instructions
+├── CHANGELOG.md                         # Version history
+└── version.json                         # For auto-updater
+```
+
+═══════════════════════════════════════════
+FILE CONTENTS — CRITICAL IMPLEMENTATION DETAILS
+═══════════════════════════════════════════
+
+### 1. `.github/workflows/build.yml` (GitHub Actions)
+
+```yaml
+name: Nova AI Singularity Build
+
+on:
+  push:
+    branches: [ main, develop ]
+    tags: ['v*']
+  workflow_dispatch:
+
+env:
+  GRADLE_OPTS: -Dorg.gradle.daemon=false -Dorg.gradle.parallel=true
+
+jobs:
+  build-apk:
+    name: 🏗️ Build Debug APK
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: gradle
+          
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+        
+      - name: Build Debug APK
+        run: ./gradlew assembleDebug --stacktrace --no-daemon
+        
+      - name: Rename APK with commit SHA
+        run: |
+          COMMIT_SHA=${GITHUB_SHA::7}
+          mv app/build/outputs/apk/debug/app-debug.apk \
+             nova-ai-debug-${COMMIT_SHA}.apk
+             
+      - name: Upload APK Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: nova-apk-debug-${{ github.sha }}
+          path: nova-ai-debug-*.apk
+          retention-days: 30
+          
+      - name: Create GitHub Release (if tagged)
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v1
+        with:
+          files: nova-ai-debug-*.apk
+          body: |
+            ## Nova AI Singularity Edition ${{ github.ref_name }}
+            
+            Automated build from commit ${{ github.sha }}
+            
+            ### 📥 Installation Steps
+            1. Download APK from assets below
+            2. Transfer to Android device
+            3. Enable "Install from Unknown Sources" in Settings → Security
+            4. Open APK file and tap Install
+            5. Launch Nova AI and configure API keys in Settings
+            
+            ### ⚙️ Required Permissions (grant after install)
+            - Accessibility Service (for device control)
+            - Notification Access (for reading notifications aloud)
+            - Camera & Microphone (for AR vision and voice input)
+            - Location (for predictive suggestions)
+            
+            ### 🔑 API Keys Configuration
+            After installation, open app → Settings (gear icon):
+            - Gemini API Key: Get free key from https://aistudio.google.com/app/apikey
+            - OpenAI Key (optional): For ChatGPT integration
+            - Anthropic Key (optional): For Claude integration
+            
+            ### ✨ Phase 10 Features Included
+            - Living Quantum Orb UI with audio-reactive particles
+            - Multi-LLM failover (Gemini → OpenRouter → Local → Fallback)
+            - Cross-AI interoperability (talk to ChatGPT/Claude simultaneously)
+            - Distributed cognition (hive mind parallel research)
+            - Self-awareness simulation (meta-cognition dashboard)
+            - Universal translator (earbud mode + AR overlay)
+            - Autonomous UI agent with safety gates
+            - Predictive intent engine
+            - Biometric mood fusion
+            - Privacy-preserving federated learning
+            
+            ---
+            Built with ❤️ by Nova AI Team
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+```
+
+### 2. `app/build.gradle.kts`
+
+```kotlin
+plugins {
+    id("com.android.application")
+    id("org.jetbrains.kotlin.android")
+}
+
+android {
+    namespace = "com.nova.ai"
+    compileSdk = 34
+
+    defaultConfig {
+        applicationId = "com.nova.ai"
+        minSdk = 24
+        targetSdk = 34
+        versionCode = 10
+        versionName = "1.0.0-phase10"
+
+        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    buildTypes {
+        release {
+            isMinifyEnabled = false
+            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
+        }
+        debug {
+            isDebuggable = true
+        }
+    }
+    
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
+    }
+    
+    kotlinOptions {
+        jvmTarget = "17"
+    }
+    
+    buildFeatures {
+        viewBinding = true
+    }
+}
+
+dependencies {
+    // Core Android
+    implementation("androidx.core:core-ktx:1.12.0")
+    implementation("androidx.appcompat:appcompat:1.6.1")
+    implementation("com.google.android.material:material:1.11.0")
+    implementation("androidx.constraintlayout:constraintlayout:2.1.4")
+    
+    // Lifecycle & Coroutines
+    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.7.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
+    
+    // Camera & ML Kit (for AR vision, face detection, gesture recognition)
+    implementation("androidx.camera:camera-core:1.3.4")
+    implementation("androidx.camera:camera-camera2:1.3.4")
+    implementation("androidx.camera:camera-lifecycle:1.3.4")
+    implementation("androidx.camera:camera-view:1.3.4")
+    implementation("com.google.mlkit:object-detection:17.0.1")
+    implementation("com.google.mlkit:face-detection:16.1.7")
+    implementation("com.google.mlkit:text-recognition:16.0.0")
+    implementation("com.google.mlkit:gesture-recognition:18.0.0")
+    
+    // Networking
+    implementation("com.squareup.okhttp3:okhttp:4.12.0")
+    implementation("org.nanohttpd:nanohttpd:2.3.1")
+    
+    // WorkManager (for background tasks)
+    implementation("androidx.work:work-runtime-ktx:2.9.1")
+    
+    // Security (encrypted preferences)
+    implementation("androidx.security:security-crypto:1.1.0-alpha06")
+    
+    // Location services
+    implementation("com.google.android.gms:play-services-location:21.3.0")
+    
+    // Testing
+    testImplementation("junit:junit:4.13.2")
+    androidTestImplementation("androidx.test.ext:junit:1.1.5")
+    androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
+}
+```
+
+### 3. `build.gradle.kts` (Project-level)
+
+```kotlin
+// Top-level build file where you can add configuration options common to all sub-projects/modules.
+plugins {
+    id("com.android.application") version "8.1.4" apply false
+    id("org.jetbrains.kotlin.android") version "1.9.22" apply false
+}
+```
+
+### 4. `settings.gradle.kts`
+
+```kotlin
+pluginManagement {
+    repositories {
+        google()
+        mavenCentral()
+        gradlePluginPortal()
+    }
+}
+
+dependencyResolutionManagement {
+    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+    repositories {
+        google()
+        mavenCentral()
+    }
+}
+
+rootProject.name = "NovaAISingularity"
+include(":app")
+```
+
+### 5. `gradle.properties`
+
+```properties
+# Project-wide Gradle settings.
+org.gradle.jvmargs=-Xmx2048m -Dfile.encoding=UTF-8
+android.useAndroidX=true
+kotlin.code.style=official
+android.nonTransitiveRClass=true
+```
+
+### 6. `gradle/wrapper/gradle-wrapper.properties`
+
+```properties
+distributionBase=GRADLE_USER_HOME
+distributionPath=wrapper/dists
+distributionUrl=https\://services.gradle.org/distributions/gradle-8.5-bin.zip
+networkTimeout=10000
+validateDistributionUrl=true
+zipStoreBase=GRADLE_USER_HOME
+zipStorePath=wrapper/dists
+```
+
+### 7. `gradlew` (Unix wrapper script — standard content)
+
+```bash
+#!/bin/sh
+
+#
+# Copyright © 2015-2021 the original authors.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      https://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
+##############################################################################
+#
+#   Gradle start up script for POSIX generated by Gradle.
+#
+#   Important for running:
+#
+#   (1) You need a POSIX-compliant shell to run this script. If your /bin/sh is
+#       noncompliant, but you have some other compliant shell such as ksh or
+#       bash, then to run this script, type that shell name before the whole
+#       command line, like:
+#
+#           ksh Gradle
+#
+#       Busybox and similar reduced shells will NOT work, because this script
+#       requires all of these POSIX shell features:
+#         * functions;
+#         * expansions «$var», «${var}», «${var:-default}», «${var:+alt}»,
+#           «${var#prefix}», «${var%suffix}», and «$( cmd )»;
+#         * compound commands having a testable exit status, especially «case»;
+#         * various built-in commands including «command», «set», and «ulimit».
+#
+#   Important for editing:
+#
+#   (2) This script targets any POSIX shell, so it avoids extensions provided
+#       by Bash, Ksh, etc; in particular arrays are avoided.
+#
+#       The "traditional" style of «expr var1 : var2» style of string manipulation
+#       is used instead of parameter expansion where possible, for compatibility
+#       with older shells.
+#
+#   (3) This script is sourced by the generated launcher scripts, which means
+#       that any changes here will affect those scripts as well.
+#
+##############################################################################
+
+# Attempt to set APP_HOME
+
+# Resolve links: $0 may be a link
+app_path=$0
+
+# Need this for daisy-chained symlinks.
+while
+    APP_HOME=${app_path%"${app_path##*/}"}  # leaves a trailing /; empty if no leading path
+    [ -h "$app_path" ]
+do
+    ls=$( ls -ld -- "$app_path" )
+    link=${ls#*' -> '}
+    case $link in             #(
+      /*)   app_path=$link ;; #(
+      *)    app_path=$APP_HOME$link ;;
+    esac
+done
+
+APP_HOME=$( cd "${APP_HOME:-./}" > /dev/null && pwd -P ) || exit
+
+APP_NAME="Gradle"
+APP_BASE_NAME=${0##*/}
+
+# Add default JVM options here. You can also use JAVA_OPTS and GRADLE_OPTS to pass JVM options to this script.
+DEFAULT_JVM_OPTS='"-Xmx64m" "-Xms64m"'
+
+# Use the maximum available, or set MAX_FD != -1 to use that value.
+MAX_FD=maximum
+
+warn () {
+    echo "$*"
+} >&2
+
+die () {
+    echo
+    echo "$*"
+    echo
+    exit 1
+} >&2
+
+# OS specific support (must be 'true' or 'false').
+cygwin=false
+msys=false
+darwin=false
+nonstop=false
+case "$( uname )" in                #(
+  CYGWIN* )         cygwin=true  ;; #(
+  Darwin* )         darwin=true  ;; #(
+  MSYS* | MINGW* )  msys=true    ;; #(
+  NonStop* )        nonstop=true ;;
+esac
+
+CLASSPATH=$APP_HOME/gradle/wrapper/gradle-wrapper.jar
+
+
+# Determine the Java command to use to start the JVM.
+if [ -n "$JAVA_HOME" ] ; then
+    if [ -x "$JAVA_HOME/jre/sh/java" ] ; then
+        # IBM's JDK on AIX uses strange locations for the executables
+        JAVACMD=$JAVA_HOME/jre/sh/java
+    else
+        JAVACMD=$JAVA_HOME/bin/java
+    fi
+    if [ ! -x "$JAVACMD" ] ; then
+        die "ERROR: JAVA_HOME is set to an invalid directory: $JAVA_HOME
+
+Please set the JAVA_HOME variable in your environment to match the
+location of your Java installation."
+    fi
+else
+    JAVACMD=java
+    which java >/dev/null 2>&1 || die "ERROR: JAVA_HOME is not set and no 'java' command could be found in your PATH.
+
+Please set the JAVA_HOME variable in your environment to match the
+location of your Java installation."
+fi
+
+# Increase the maximum file descriptors if we can.
+if ! "$cygwin" && ! "$darwin" && ! "$nonstop" ; then
+    case $MAX_FD in #(
+      max*)
+        MAX_FD=$( ulimit -H -n ) ||
+            warn "Could not query maximum file descriptor limit"
+      ;;
+    esac
+    case $MAX_FD in  #(
+      '' | soft) :;; #(
+      *)
+        ulimit -n "$MAX_FD" ||
+            warn "Could not set maximum file descriptor limit to $MAX_FD"
+      ;;
+    esac
+fi
+
+# Collect all arguments for the java command, stracks://docs.gradle.org/current/userguide/gradle_daemon.html#sec:disabling_the_daemon
+# For Cygwin or MSYS, switch paths to Windows format before running java
+if "$cygwin" || "$msys" ; then
+    APP_HOME=$( cygpath --path --mixed "$APP_HOME" )
+    CLASSPATH=$( cygpath --path --mixed "$CLASSPATH" )
+
+    JAVACMD=$( cygpath --unix "$JAVACMD" )
+
+fi
+
+exec "$JAVACMD" \
+    $DEFAULT_JVM_OPTS \
+    $JAVA_OPTS \
+    $GRADLE_OPTS \
+    "-Dorg.gradle.appname=$APP_BASE_NAME" \
+    -classpath "$CLASSPATH" \
+    org.gradle.wrapper.GradleWrapperMain \
+    "$@"
+```
+
+### 8. `gradlew.bat` (Windows wrapper script — standard content)
+
+```batch
+@rem
+@rem Copyright 2015 the original author or authors.
+@rem
+@rem Licensed under the Apache License, Version 2.0 (the "License");
+@rem you may not use this file except in compliance with the License.
+@rem You may obtain a copy of the License at
+@rem
+@rem      https://www.apache.org/licenses/LICENSE-2.0
+@rem
+@rem Unless required by applicable law or agreed to in writing, software
+@rem distributed under the License is distributed on an "AS IS" BASIS,
+@rem WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+@rem See the License for the specific language governing permissions and
+@rem limitations under the License.
+@rem
+
+@if "%DEBUG%"=="" @echo off
+@rem ##########################################################################
+@rem
+@rem  Gradle startup script for Windows
+@rem
+@rem ##########################################################################
+
+@rem Set local scope for the variables with windows NT shell
+if "%OS%"=="Windows_NT" setlocal
+
+set DIRNAME=%~dp0
+if "%DIRNAME%"=="" set DIRNAME=.
+@rem This is normally unused
+set APP_BASE_NAME=%~n0
+set APP_HOME=%DIRNAME%
+
+@rem Resolve any "." and ".." in APP_HOME to make it shorter.
+for %%i in ("%APP_HOME%") do set APP_HOME=%%~fi
+
+@rem Add default JVM options here. You can also use JAVA_OPTS and GRADLE_OPTS to pass JVM options to this script.
+set DEFAULT_JVM_OPTS="-Xmx64m" "-Xms64m"
+
+@rem Find java.exe
+if defined JAVA_HOME goto findJavaFromJavaHome
+
+set JAVA_EXE=java.exe
+%JAVA_EXE% -version >NUL 2>&1
+if %ERRORLEVEL% equ 0 goto execute
+
+echo.
+echo ERROR: JAVA_HOME is not set and no 'java' command could be found in your PATH.
+echo.
+echo Please set the JAVA_HOME variable in your environment to match the
+echo location of your Java installation.
+
+goto fail
+
+:findJavaFromJavaHome
+set JAVA_HOME=%JAVA_HOME:"=%
+set JAVA_EXE=%JAVA_HOME%/bin/java.exe
+
+if exist "%JAVA_EXE%" goto execute
+
+echo.
+echo ERROR: JAVA_HOME is set to an invalid directory: %JAVA_HOME%
+echo.
+echo Please set the JAVA_HOME variable in your environment to match the
+echo location of your Java installation.
+
+goto fail
+
+:execute
+@rem Setup the command line
+
+set CLASSPATH=%APP_HOME%\gradle\wrapper\gradle-wrapper.jar
+
+
+@rem Execute Gradle
+"%JAVA_EXE%" %DEFAULT_JVM_OPTS% %JAVA_OPTS% %GRADLE_OPTS% "-Dorg.gradle.appname=%APP_BASE_NAME%" -classpath "%CLASSPATH%" org.gradle.wrapper.GradleWrapperMain %*
+
+:end
+@rem End local scope for the variables with windows NT shell
+if %OS%==Windows_NT endlocal
+
+:omega
+@exit /b %ERRORLEVEL%
+
+:fail
+rem Set variable GRADLE_EXIT_CONSOLE if you need the _script_ return code instead of
+rem having the window close on error
+if  not "" == "%GRADLE_EXIT_CONSOLE%" exit %ERRORLEVEL%
+exit /b %ERRORLEVEL%
+```
+
+### 9. `.gitignore`
+
+```gitignore
+# Built application files
+*.apk
+*.aar
+*.ap_
+*.aab
+
+# Files for the ART/Dalvik VM
+*.dex
+
+# Java class files
+*.class
+
+# Generated files
+bin/
+gen/
+out/
+release/
+
+# Gradle files
+.gradle/
+build/
+
+# Local configuration file (sdk path, etc)
+local.properties
+
+# Proguard folder generated by Eclipse
+proguard/
+
+# Log Files
+*.log
+
+# Android Studio Navigation editor temp files
+.navigation/
+
+# Android Studio captures folder
+captures/
+
+# IntelliJ
+*.iml
+.idea/workspace.xml
+.idea/tasks.xml
+.idea/gradle.xml
+.idea/assetWizardSettings.xml
+.idea/dictionaries
+.idea/libraries
+.idea/caches
+
+# Keystore files
+*.jks
+*.keystore
+
+# External native build folder generated in Android Studio 2.2 and later
+.externalNativeBuild
+.cxx/
+
+# Google Services (e.g. APIs or Firebase)
+google-services.json
+
+# Freeline
+freeline.py
+freeline/
+freeline_project_description.json
+
+# fastlane
+fastlane/report.xml
+fastlane/Preview.html
+fastlane/screenshots
+fastlane/test_output
+fastlane/readme.md
+
+# Version control
+vcs.xml
+
+# lint
+lint/intermediates/
+lint/generated/
+lint/outputs/
+lint/tmp/
+lint-results.xml
+```
+
+### 10. `app/src/main/AndroidManifest.xml`
+
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <!-- Network -->
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+    
+    <!-- Audio/Video -->
+    <uses-permission android:name="android.permission.RECORD_AUDIO"/>
+    <uses-permission android:name="android.permission.CAMERA"/>
+    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS"/>
+    
+    <!-- Device Control -->
+    <uses-permission android:name="android.permission.VIBRATE"/>
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW"/>
+    <uses-permission android:name="android.permission.WRITE_SETTINGS" tools:ignore="ProtectedPermissions"/>
+    <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES" tools:ignore="QueryAllPackagesPermission"/>
+    
+    <!-- Notifications -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
+    <uses-permission android:name="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE" tools:ignore="ProtectedPermissions"/>
+    
+    <!-- Foreground Services -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PROJECTION"/>
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_CAMERA"/>
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MICROPHONE"/>
+    
+    <!-- Location -->
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+    
+    <!-- Sensors -->
+    <uses-permission android:name="android.permission.ACTIVITY_RECOGNITION"/>
+    
+    <!-- Storage -->
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" android:maxSdkVersion="32"/>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" android:maxSdkVersion="32"/>
+    
+    <!-- Installation -->
+    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES"/>
+    
+    <!-- WiFi Direct -->
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
+    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE"/>
+    
+    <!-- Wake Lock -->
+    <uses-permission android:name="android.permission.WAKE_LOCK"/>
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
+
+    <application
+        android:name=".NovaApplication"
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.NovaAI"
+        android:usesCleartextTraffic="true"
+        tools:targetApi="31">
+        
+        <activity
+            android:name=".MainActivity"
+            android:exported="true"
+            android:configChanges="orientation|screenSize|keyboardHidden"
+            android:launchMode="singleTask">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+        </activity>
+        
+        <!-- Accessibility Service -->
+        <service
+            android:name=".services.NovaAccessibilityService"
+            android:exported="true"
+            android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE">
+            <intent-filter>
+                <action android:name="android.accessibilityservice.AccessibilityService"/>
+            </intent-filter>
+            <meta-data
+                android:name="android.accessibilityservice"
+                android:resource="@xml/accessibility_service_config"/>
+        </service>
+        
+        <!-- Notification Listener -->
+        <service
+            android:name=".services.NovaNotificationListener"
+            android:exported="true"
+            android:permission="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE">
+            <intent-filter>
+                <action android:name="android.service.notification.NotificationListenerService"/>
+            </intent-filter>
+        </service>
+        
+        <!-- Other Services -->
+        <service android:name=".services.WakeWordService" android:exported="false"/>
+        <service android:name=".services.ScreenCaptureService" android:foregroundServiceType="mediaProjection" android:exported="false"/>
+        <service android:name=".services.MeshNetworkService" android:exported="false"/>
+        
+        <!-- Boot Receiver -->
+        <receiver
+            android:name=".receivers.BootReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED"/>
+            </intent-filter>
+        </receiver>
+        
+        <!-- File Provider for APK installation -->
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths"/>
+        </provider>
+        
+    </application>
+</manifest>
+```
+
+### 11. `app/src/main/java/com/nova/ai/MainActivity.kt`
+
+```kotlin
+package com.nova.ai
+
+import android.annotation.SuppressLint
+import android.os.Bundle
+import android.webkit.WebChromeClient
+import android.webkit.WebView
+import android.webkit.WebViewClient
+import androidx.appcompat.app.AppCompatActivity
+import com.nova.ai.bridge.JsBridge
+
+class MainActivity : AppCompatActivity() {
+    
+    companion object {
+        var instance: MainActivity? = null
+            private set
+    }
+    
+    private lateinit var webView: WebView
+    
+    @SuppressLint("SetJavaScriptEnabled")
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        instance = this
+        
+        webView = WebView(this)
+        setContentView(webView)
+        
+        webView.settings.apply {
+            javaScriptEnabled = true
+            domStorageEnabled = true
+            mediaPlaybackRequiresUserGesture = false
+            allowFileAccess = true
+            mixedContentMode = android.webkit.WebSettings.MIXED_CONTENT_ALWAYS_ALLOW
+        }
+        
+        webView.webViewClient = WebViewClient()
+        webView.webChromeClient = WebChromeClient()
+        webView.addJavascriptInterface(JsBridge(this), "Nova")
+        
+        webView.loadUrl("file:///android_asset/www/index.html")
+    }
+    
+    override fun onDestroy() {
+        super.onDestroy()
+        instance = null
+    }
+    
+    override fun onBackPressed() {
+        if (webView.canGoBack()) {
+            webView.goBack()
+        } else {
+            super.onBackPressed()
+        }
+    }
+}
+```
+
+### 12. `app/src/main/java/com/nova/ai/NovaApplication.kt`
+
+```kotlin
+package com.nova.ai
+
+import android.app.Application
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.os.Build
+
+class NovaApplication : Application() {
+    
+    override fun onCreate() {
+        super.onCreate()
+        createNotificationChannels()
+    }
+    
+    private fun createNotificationChannels() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val manager = getSystemService(NotificationManager::class.java)
+            
+            val channel = NotificationChannel(
+                "nova_general",
+                "Nova AI General",
+                NotificationManager.IMPORTANCE_LOW
+            ).apply {
+                description = "General notifications from Nova AI"
+            }
+            
+            manager.createNotificationChannel(channel)
+        }
+    }
+}
+```
+
+### 13. `app/src/main/java/com/nova/ai/bridge/JsBridge.kt`
+
+```kotlin
+package com.nova.ai.bridge
+
+import android.webkit.JavascriptInterface
+import com.nova.ai.MainActivity
+import com.nova.ai.ai.LlmManager
+import com.nova.ai.utils.DeviceControl
+import com.nova.ai.utils.PrivacyScrubber
+import kotlinx.coroutines.runBlocking
+import org.json.JSONObject
+
+class JsBridge(private val activity: MainActivity) {
+    
+    @JavascriptInterface
+    fun ready(): String = "native"
+    
+    @JavascriptInterface
+    fun getLevel(): Double {
+        // Return simulated audio level for orb animation
+        // In production, this would come from actual AudioRecord RMS values
+        return Math.random() * 0.3 + 0.1
+    }
+    
+    @JavascriptInterface
+    fun speak(text: String) {
+        activity.runOnUiThread {
+            // Use Android TTS engine
+            val tts = android.speech.tts.TextToSpeech(activity) { status ->
+                if (status == android.speech.tts.TextToSpeech.SUCCESS) {
+                    tts.language = java.util.Locale.US
+                    tts.speak(text, android.speech.tts.TextToSpeech.QUEUE_FLUSH, null, "nova-response")
+                }
+            }
+        }
+    }
+    
+    @JavascriptInterface
+    fun listen() {
+        // Trigger native speech recognition
+        // Implementation depends on SpeechRecognizer availability
+        activity.runOnUiThread {
+            // Placeholder — full implementation requires SpeechRecognizer setup
+            println("Native listen triggered")
+        }
+    }
+    
+    @JavascriptInterface
+    fun openApp(pkg: String): Boolean {
+        return try {
+            val intent = activity.packageManager.getLaunchIntentForPackage(pkg)
+            if (intent != null) {
+                activity.startActivity(intent)
+                true
+            } else false
+        } catch (e: Exception) {
+            false
+        }
+    }
+    
+    @JavascriptInterface
+    fun listApps(): String {
+        val pm = activity.packageManager
+        val apps = pm.getInstalledApplications(0)
+        val result = org.json.JSONArray()
+        apps.forEach { app ->
+            result.put(JSONObject().put("name", pm.getApplicationLabel(app)).put("pkg", app.packageName))
+        }
+        return result.toString()
+    }
+    
+    @JavascriptInterface
+    fun torch(on: Boolean): Boolean = DeviceControl.torch(activity, on)
+    
+    @JavascriptInterface
+    fun goHome(): Boolean = com.nova.ai.services.NovaAccessibilityService.global(
+        android.accessibilityservice.AccessibilityService.GLOBAL_ACTION_HOME
+    )
+    
+    @JavascriptInterface
+    fun goBack(): Boolean = com.nova.ai.services.NovaAccessibilityService.global(
+        android.accessibilityservice.AccessibilityService.GLOBAL_ACTION_BACK
+    )
+    
+    @JavascriptInterface
+    fun deviceInfo(): String {
+        val batt = activity.registerReceiver(null, android.content.IntentFilter(android.content.Intent.ACTION_BATTERY_CHANGED))
+            ?.getIntExtra(android.os.BatteryManager.EXTRA_LEVEL, -1) ?: -1
+        return JSONObject()
+            .put("model", android.os.Build.MODEL)
+            .put("android", android.os.Build.VERSION.RELEASE)
+            .put("battery", batt)
+            .toString()
+    }
+    
+    @JavascriptInterface
+    fun enableAccessibility() {
+        activity.startActivity(android.content.Intent(android.provider.Settings.ACTION_ACCESSIBILITY_SETTINGS))
+    }
+    
+    @JavascriptInterface
+    fun accessibilityOn(): Boolean = com.nova.ai.services.NovaAccessibilityService.instance != null
+    
+    @JavascriptInterface
+    fun askAi(prompt: String, sysPrompt: String): String {
+        return runBlocking {
+            val scrubbed = PrivacyScrubber.scrub(prompt)
+            val response = LlmManager.ask(scrubbed, sysPrompt)
+            PrivacyScrubber.restore(response)
+        }
+    }
+    
+    @JavascriptInterface
+    fun saveKey(key: String, value: String) {
+        activity.getSharedPreferences("nova_keys", android.content.Context.MODE_PRIVATE)
+            .edit().putString(key, value).apply()
+    }
+    
+    @JavascriptInterface
+    fun getKey(key: String): String {
+        return activity.getSharedPreferences("nova_keys", android.content.Context.MODE_PRIVATE)
+            .getString(key, "") ?: ""
+    }
+}
+```
+
+### 14. `app/src/main/java/com/nova/ai/ai/LlmManager.kt`
+
+```kotlin
+package com.nova.ai.ai
+
+import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import okhttp3.RequestBody.Companion.toRequestBody
+import org.json.JSONArray
+import org.json.JSONObject
+import java.util.concurrent.TimeUnit
+
+object LlmManager {
+    
+    private val client = OkHttpClient.Builder()
+        .connectTimeout(15, TimeUnit.SECONDS)
+        .readTimeout(30, TimeUnit.SECONDS)
+        .build()
+    
+    suspend fun ask(prompt: String, systemPrompt: String): String {
+        // Try Gemini first
+        val geminiKey = getApiKey("gemini")
+        if (geminiKey.isNotBlank()) {
+            try {
+                return callGemini(prompt, systemPrompt, geminiKey)
+            } catch (e: Exception) {
+                println("Gemini failed: ${e.message}, trying fallback...")
+            }
+        }
+        
+        // Fallback to rule-based responses
+        return localFallback(prompt)
+    }
+    
+    private fun callGemini(prompt: String, sysPrompt: String, apiKey: String): String {
+        val url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=$apiKey"
+        
+        val body = JSONObject().apply {
+            put("contents", JSONArray().put(JSONObject().put("parts", JSONArray().put(JSONObject().put("text", prompt)))))
+            put("systemInstruction", JSONObject().put("parts", JSONArray().put(JSONObject().put("text", sysPrompt))))
+        }
+        
+        val request = Request.Builder()
+            .url(url)
+            .post(body.toString().toRequestBody("application/json".toMediaType()))
+            .build()
+        
+        val response = client.newCall(request).execute()
+        val json = JSONObject(response.body!!.string())
+        
+        return json.getJSONArray("candidates")
+            .getJSONObject(0)
+            .getJSONObject("content")
+            .getJSONArray("parts")
+            .getJSONObject(0)
+            .optString("text", "No response generated.")
+    }
+    
+    private fun localFallback(prompt: String): String {
+        val lower = prompt.lowercase()
+        return when {
+            lower.contains("hello") || lower.contains("hi") -> "Hey! 👋 Main Nova hoon. Bolo — kya karun?"
+            lower.contains("time") -> "Abhi time hai: ${java.text.SimpleDateFormat("HH:mm", java.util.Locale.getDefault()).format(java.util.Date())}"
+            lower.contains("battery") -> "Battery check karne ke liye native bridge chahiye. APK install karo!"
+            else -> "Samajh gaya. Full intelligence ke liye Settings me Gemini API key add karo. Abhi main basic replies de sakta hoon."
+        }
+    }
+    
+    private fun getApiKey(provider: String): String {
+        // In production, this reads from encrypted SharedPreferences
+        // For demo, return empty string to trigger fallback
+        return ""
+    }
+}
+```
+
+### 15. `app/src/main/assets/www/index.html` (COMPLETE UI FILE)
+
+This is the most critical file — the entire user interface. Due to length constraints, I'll provide the complete structure with all essential components:
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<title>Nova AI Singularity</title>
+<style>
+/* === RESET & BASE === */
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+:root{
+  --bg:#07070d;--panel:rgba(20,20,35,.55);--stroke:rgba(255,255,255,.09);
+  --c1:#7c5cff;--c2:#00e0ff;--c3:#ff3d8b;--c4:#00ffa3;
+  --txt:#f4f4fb;--sub:#8b8ba7;--safe-b:env(safe-area-inset-bottom,12px);
+}
+html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--txt);
+  font-family:'Segoe UI',system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+
+/* === AURORA BACKGROUND === */
+.aurora{position:fixed;inset:-20%;z-index:0;filter:blur(70px);opacity:.55;pointer-events:none}
+.aurora span{position:absolute;border-radius:50%;mix-blend-mode:screen;animation:drift 18s ease-in-out infinite}
+.a1{width:55vw;height:55vw;left:-10%;top:-10%;background:radial-gradient(circle,var(--c1),transparent 70%)}
+.a2{width:50vw;height:50vw;right:-15%;top:10%;background:radial-gradient(circle,var(--c2),transparent 70%);animation-delay:-6s}
+.a3{width:60vw;height:60vw;left:10%;bottom:-20%;background:radial-gradient(circle,var(--c3),transparent 70%);animation-delay:-12s}
+.a4{width:35vw;height:35vw;right:5%;bottom:5%;background:radial-gradient(circle,var(--c4),transparent 70%);animation-delay:-3s}
+@keyframes drift{0%,100%{transform:translate(0,0) scale(1)}33%{transform:translate(8%,-6%) scale(1.15)}66%{transform:translate(-6%,8%) scale(.9)}}
+
+.grain{position:fixed;inset:0;z-index:1;pointer-events:none;opacity:.04;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence baseFrequency='.9'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+
+/* === APP SHELL === */
+.app{position:relative;z-index:2;height:100%;display:flex;flex-direction:column}
+
+/* TOP BAR */
+.top{display:flex;align-items:center;justify-content:space-between;
+  padding:calc(14px + env(safe-area-inset-top)) 18px 12px}
+.brand{display:flex;align-items:center;gap:10px}
+.mark{width:34px;height:34px;border-radius:11px;display:grid;place-items:center;font-size:17px;
+  background:linear-gradient(135deg,var(--c1),var(--c2));box-shadow:0 6px 22px rgba(124,92,255,.45);
+  animation:spinMark 14s linear infinite}
+@keyframes spinMark{to{transform:rotate(360deg)}}
+.brand b{font-size:19px;font-weight:800;letter-spacing:.5px}
+.brand b i{font-style:normal;background:linear-gradient(90deg,var(--c2),var(--c4));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.live{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--sub);
+  padding:6px 11px;border-radius:20px;background:var(--panel);border:1px solid var(--stroke);backdrop-filter:blur(14px)}
+.live .dot{width:7px;height:7px;border-radius:50%;background:var(--c4);box-shadow:0 0 10px var(--c4);animation:blink 2s infinite}
+@keyframes blink{50%{opacity:.3}}
+.iconbtn{width:38px;height:38px;border-radius:12px;border:1px solid var(--stroke);background:var(--panel);
+  color:var(--sub);font-size:16px;display:grid;place-items:center;cursor:pointer;backdrop-filter:blur(14px);transition:.2s}
+.iconbtn:active{transform:scale(.92);color:var(--txt);border-color:var(--c1)}
+
+/* ORB STAGE */
+.stage{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative;padding:10px}
+.orb-wrap{position:relative;width:min(72vw,320px);aspect-ratio:1;display:grid;place-items:center;
+  transition:transform .4s cubic-bezier(.2,1.3,.4,1)}
+.orb-wrap.talk{transform:scale(1.06)}
+#orb{width:100%;height:100%;display:block;filter:drop-shadow(0 0 40px rgba(124,92,255,.35))}
+.halo{position:absolute;inset:8%;border-radius:50%;border:1px solid var(--stroke);opacity:.5;pointer-events:none}
+.halo::after{content:'';position:absolute;inset:-14%;border-radius:50%;border:1px dashed rgba(255,255,255,.06)}
+
+.state-pill{position:absolute;bottom:6%;left:50%;transform:translateX(-50%);
+  display:flex;align-items:center;gap:8px;padding:9px 18px;border-radius:30px;
+  background:rgba(10,10,18,.7);border:1px solid var(--stroke);backdrop-filter:blur(16px);
+  font-size:12px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;white-space:nowrap}
+.state-pill .sdot{width:9px;height:9px;border-radius:50%;background:var(--c4);box-shadow:0 0 12px var(--c4);transition:.3s}
+.greet{text-align:center;margin-top:26px;max-width:84%}
+.greet h2{font-size:clamp(24px,7vw,34px);font-weight:800;line-height:1.15;
+  background:linear-gradient(180deg,#fff,#b9b9d6);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.greet p{margin-top:10px;font-size:13.5px;color:var(--sub);line-height:1.6}
+
+/* CHAT OVERLAY */
+.chat{position:absolute;inset:0;z-index:5;display:flex;flex-direction:column;justify-content:flex-end;
+  padding:20px 18px 14px;gap:10px;opacity:0;pointer-events:none;transition:.4s;
+  background:linear-gradient(to top,rgba(7,7,13,.92) 30%,transparent)}
+.chat.show{opacity:1;pointer-events:auto}
+.bubble{max-width:82%;padding:13px 17px;border-radius:22px;font-size:14.5px;line-height:1.55;
+  backdrop-filter:blur(14px);animation:rise .45s cubic-bezier(.2,1,.3,1) both}
+@keyframes rise{from{opacity:0;transform:translateY(16px) scale(.96)}}
+.b-ai{align-self:flex-start;background:var(--panel);border:1px solid var(--stroke);border-bottom-left-radius:7px}
+.b-user{align-self:flex-end;background:linear-gradient(135deg,var(--c1),#9d7bff);border-bottom-right-radius:7px;box-shadow:0 8px 24px rgba(124,92,255,.35)}
+.typing{display:flex;gap:5px;padding:16px 18px}
+.typing i{width:7px;height:7px;border-radius:50%;background:var(--sub);animation:bounce 1.2s infinite}
+.typing i:nth-child(2){animation-delay:.2s}.typing i:nth-child(3){animation-delay:.4s}
+@keyframes bounce{0%,60%,100%{transform:translateY(0);opacity:.4}30%{transform:translateY(-7px);opacity:1}}
+
+/* SUGGESTION RAIL */
+.rail{display:flex;gap:9px;padding:4px 18px 12px;overflow-x:auto;scrollbar-width:none}
+.rail::-webkit-scrollbar{display:none}
+.sug{flex:0 0 auto;padding:10px 16px;border-radius:16px;font-size:12.5px;font-weight:600;color:var(--sub);
+  background:var(--panel);border:1px solid var(--stroke);backdrop-filter:blur(12px);cursor:pointer;transition:.2s;display:flex;align-items:center;gap:7px}
+.sug:active{transform:scale(.94);color:var(--txt);border-color:var(--c2)}
+.sug em{font-style:normal;font-size:14px}
+
+/* INPUT DOCK */
+.dock{padding:8px 16px calc(16px + var(--safe-b))}
+.bar{display:flex;align-items:center;gap:8px;padding:8px 8px 8px 18px;border-radius:30px;
+  background:rgba(14,14,24,.82);border:1px solid var(--stroke);backdrop-filter:blur(20px);
+  box-shadow:0 12px 40px rgba(0,0,0,.5)}
+.bar input{flex:1;background:none;border:none;outline:none;color:var(--txt);font-size:15px;font-family:inherit}
+.bar input::placeholder{color:var(--sub)}
+.send{width:46px;height:46px;border-radius:50%;border:none;cursor:pointer;font-size:18px;color:#fff;
+  background:linear-gradient(135deg,var(--c1),var(--c3));box-shadow:0 6px 20px rgba(124,92,255,.5);transition:.2s;display:grid;place-items:center}
+.send:active{transform:scale(.9)}
+.mic{width:46px;height:46px;border-radius:50%;border:1px solid var(--stroke);cursor:pointer;font-size:18px;
+  background:var(--panel);color:var(--txt);display:grid;place-items:center;transition:.2s;position:relative}
+.mic.on{background:linear-gradient(135deg,var(--c2),var(--c4));color:#04121a;border:none;animation:pulseMic 1.4s infinite}
+@keyframes pulseMic{0%{box-shadow:0 0 0 0 rgba(0,224,255,.5)}70%{box-shadow:0 0 0 14px rgba(0,224,255,0)}100%{box-shadow:0 0 0 0 rgba(0,224,255,0)}}
+
+/* SETTINGS SHEET */
+.sheet{position:fixed;inset:0;z-index:20;background:rgba(0,0,0,.6);backdrop-filter:blur(6px);
+  opacity:0;pointer-events:none;transition:.3s}
+.sheet.open{opacity:1;pointer-events:auto}
+.sheet-body{position:absolute;left:0;right:0;bottom:0;max-height:80%;overflow-y:auto;
+  background:rgba(14,14,22,.96);border-top:1px solid var(--stroke);border-radius:26px 26px 0 0;
+  padding:22px 20px calc(30px + var(--safe-b));transform:translateY(100%);transition:.4s cubic-bezier(.2,1,.3,1)}
+.sheet.open .sheet-body{transform:none}
+.sheet h3{font-size:17px;font-weight:700;margin-bottom:4px}
+.sheet .hint{font-size:12px;color:var(--sub);margin-bottom:18px}
+.field{margin-bottom:16px}
+.field label{display:block;font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--sub);margin-bottom:7px}
+.field input,.field select{width:100%;padding:13px 15px;border-radius:14px;background:rgba(255,255,255,.04);
+  border:1px solid var(--stroke);color:var(--txt);font-size:14px;font-family:inherit;outline:none}
+.row{display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-bottom:1px solid var(--stroke)}
+.row:last-child{border:none}
+.row .t{font-size:14px;font-weight:600}.row .d{font-size:11.5px;color:var(--sub);margin-top:2px}
+.sw{width:48px;height:28px;border-radius:20px;background:rgba(255,255,255,.1);position:relative;cursor:pointer;transition:.25s;flex-shrink:0}
+.sw::after{content:'';position:absolute;top:3px;left:3px;width:22px;height:22px;border-radius:50%;background:#fff;transition:.25s}
+.sw.on{background:linear-gradient(135deg,var(--c1),var(--c2))}.sw.on::after{transform:translateX(20px)}
+.btn-full{width:100%;padding:15px;border-radius:16px;border:none;cursor:pointer;font-size:15px;font-weight:700;font-family:inherit;
+  background:linear-gradient(135deg,var(--c1),var(--c3));color:#fff;margin-top:8px;box-shadow:0 8px 24px rgba(124,92,255,.4)}
+.btn-ghost{width:100%;padding:14px;border-radius:16px;border:1px solid var(--stroke);cursor:pointer;font-size:14px;font-weight:600;font-family:inherit;background:var(--panel);color:var(--txt);margin-top:10px}
+</style>
+</head>
+<body>
+
+<div class="aurora"><span class="a1"></span><span class="a2"></span><span class="a3"></span><span class="a4"></span></div>
+<div class="grain"></div>
+
+<div class="app">
+  <!-- TOP BAR -->
+  <header class="top">
+    <div class="brand"><div class="mark">✦</div><b>NOVA<i>AI</i></b></div>
+    <div style="display:flex;gap:9px;align-items:center">
+      <div class="live"><span class="dot"></span><span id="statustxt">Online</span></div>
+      <button class="iconbtn" id="gear">⚙︎</button>
+    </div>
+  </header>
+
+  <!-- ORB STAGE -->
+  <main class="stage">
+    <div class="orb-wrap" id="wrap">
+      <canvas id="orb"></canvas>
+      <div class="halo"></div>
+      <div class="state-pill"><span class="sdot" id="sdot"></span><span id="stlabel">Tap to talk</span></div>
+    </div>
+    <div class="greet">
+      <h2 id="gh">What can I help<br>with?</h2>
+      <p>Your private assistant, on your device. Talk naturally or type below.</p>
+    </div>
+    <div class="chat" id="chat"></div>
+  </main>
+
+  <!-- SUGGESTIONS -->
+  <div class="rail" id="rail"></div>
+
+  <!-- INPUT DOCK -->
+  <div class="dock">
+    <div class="bar">
+      <input id="inp" placeholder="Message Nova…" autocomplete="off">
+      <button class="mic" id="mic">🎙</button>
+      <button class="send" id="send">➤</button>
+    </div>
+  </div>
+</div>
+
+<!-- SETTINGS SHEET -->
+<div class="sheet" id="sheet">
+  <div class="sheet-body">
+    <h3>Settings</h3>
+    <p class="hint">Configure your brain & permissions.</p>
+    <div class="field"><label>Gemini API Key</label><input id="gkey" placeholder="paste key from aistudio.google.com"></div>
+    <div class="field"><label>Personality</label>
+      <select id="pers"><option value="pro">Professional</option><option value="gf">Warm / GF</option><option value="venom">Venom (bold)</option></select>
+    </div>
+    <div class="row"><div><div class="t">Full Device Control</div><div class="d">Accessibility service</div></div><div class="sw" id="swAcc"></div></div>
+    <div class="row"><div><div class="t">Read Notifications</div><div class="d">Aloud + auto-reply</div></div><div class="sw" id="swNotif"></div></div>
+    <button class="btn-full" id="saveSet">Save & Apply</button>
+    <button class="btn-ghost" id="closeSheet" style="background:none;border:none;color:var(--sub)">Cancel</button>
+  </div>
+</div>
+
+<script>
+const $=id=>document.getElementById(id);
+const NATIVE=()=>typeof window.Nova!=='undefined';
+const N=()=>window.Nova;
+let KEY=localStorage.getItem('nk')||'';
+let PERSONA=localStorage.getItem('np')||'pro';
+
+/* ===== THE LIVING ORB — Pure Canvas 2D ===== */
+const cv=$('orb'),cx=cv.getContext('2d');
+let W,H,DPR=Math.min(window.devicePixelRatio||1,2);
+
+function sizeCanvas(){
+  const rect=cv.getBoundingClientRect();
+  W=rect.width*DPR;H=rect.height*DPR;
+  cv.width=W;cv.height=H;
+}
+sizeCanvas();
+window.addEventListener('resize',sizeCanvas);
+
+const NP=300,P=[];
+for(let i=0;i<NP;i++){
+  const a=Math.random()*Math.PI*2,r=.32+Math.random()*.16;
+  P.push({ang:a,rad:r,spd:(Math.random()-.5)*.0009,size:1+Math.random()*2.4,ph:Math.random()*6.28});
+}
+
+let STATE='idle',energy=0,targetEnergy=0,mood={r:124,g:92,b:255};
+const MOODS={idle:[124,92,255],listen:[0,224,255],think:[255,61,139],talk:[0,255,163]};
+
+function setState(s,label,colorDot){
+  STATE=s;$('stlabel').textContent=label;
+  $('wrap').classList.toggle('talk',s==='talk'||s==='listen');
+  $('sdot').style.background=colorDot;$('sdot').style.boxShadow=`0 0 12px ${colorDot}`;
+  mood=MOODS[s]||MOODS.idle;
+}
+
+(function sim(){targetEnergy=.06+.05*Math.abs(Math.sin(Date.now()/900));})();
+
+let t=0;
+function frame(){
+  requestAnimationFrame(frame);t++;
+  energy+=(targetEnergy-energy)*.12;
+  
+  const centerX=W/2,centerY=H/2,R=Math.min(W,H)*.34;
+  cx.clearRect(0,0,W,H);
+
+  const g=cx.createRadialGradient(centerX,centerY,0,centerX,centerY,R*(1+energy*1.4));
+  g.addColorStop(0,`rgba(${mood.r},${mood.g},${mood.b},.9)`);
+  g.addColorStop(.4,`rgba(${mood.r},${mood.g},${mood.b},.35)`);
+  g.addColorStop(1,'rgba(0,0,0,0)');
+  cx.fillStyle=g;cx.beginPath();cx.arc(centerX,centerY,R*(1+energy*1.4),0,Math.PI*2);cx.fill();
+
+  cx.beginPath();
+  for(let i=0;i<=120;i++){
+    const a=i/120*Math.PI*2;
+    const wob=Math.sin(a*3+t*.04)*energy*R*.18+Math.sin(a*5-t*.03)*R*.04;
+    const rr=R+wob;
+    const x=centerX+Math.cos(a)*rr,y=centerY+Math.sin(a)*rr;
+    i?cx.lineTo(x,y):cx.moveTo(x,y);
+  }
+  cx.closePath();
+  cx.strokeStyle=`rgba(${mood.r},${mood.g},${mood.b},.5)`;cx.lineWidth=1.5*DPR;cx.stroke();
+
+  for(const p of P){
+    p.ang+=p.spd*(1+energy*8);
+    const pr=R*p.rad*(1+energy*.9)+Math.sin(t*.05+p.ph)*4*DPR;
+    const x=centerX+Math.cos(p.ang)*pr,y=centerY+Math.sin(p.ang)*pr;
+    const al=.35+energy*.65;
+    cx.fillStyle=`rgba(${mood.r},${mood.g},${mood.b},${al})`;
+    cx.beginPath();cx.arc(x,y,p.size*DPR*(1+energy),0,Math.PI*2);cx.fill();
+  }
+  
+  cx.fillStyle=`rgba(255,255,255,${.5+energy*.5})`;
+  cx.beginPath();cx.arc(centerX,centerY,R*.12*(1+energy*.5),0,Math.PI*2);cx.fill();
+}
+frame();
+
+setInterval(()=>{if(NATIVE()&&N().getLevel)targetEnergy=N().getLevel();},60);
+
+/* ===== CHAT + AI ===== */
+const chat=$('chat');let chatOpen=false;
+function openChat(){chatOpen=true;chat.classList.add('show');$('gh').innerHTML='Nova is listening…';}
+function bubble(txt,who){const d=document.createElement('div');d.className='bubble b-'+who;d.textContent=txt;
+  chat.appendChild(d);chat.scrollTop=chat.scrollHeight;return d;}
+function typing(){const d=document.createElement('div');d.className='bubble b-ai typing';d.innerHTML='<i></i><i></i><i></i>';
+  chat.appendChild(d);chat.scrollTop=chat.scrollHeight;return d;}
+
+async function ask(userText){
+  openChat();bubble(userText,'user');setState('think','Thinking','#ff3d81');
+  targetEnergy=.5;const ti=typing();
+  let ans=null;
+  
+  if(KEY && NATIVE()){
+    try{
+      const sys={pro:"You are Nova, a concise professional Android assistant.",
+        gf:"You are Nova, a warm caring companion, Hinglish allowed.",
+        venom:"You are Nova as Venom — bold, dramatic, funny."}[PERSONA];
+      ans=N().askAi(userText, sys);
+    }catch(e){console.error(e);}
+  }
+  
+  if(!ans)ans=localReply(userText);
+  ti.remove();bubble(ans,'ai');setState('talk','Speaking','#00ffa3');targetEnergy=.7;
+  if(NATIVE())N().speak(ans);
+  setTimeout(()=>{setState('idle','Tap to talk','#00ffa3');targetEnergy=.08;},2500);
+}
+
+function localReply(q){q=q.toLowerCase();
+  if(/hello|hi|hey/.test(q))return 'Hey! 👋 Main Nova hoon. Bolo — kya karun?';
+  if(/time/.test(q))return 'It\'s '+new Date().toLocaleTimeString();
+  return 'Settings me Gemini key add karo for full intelligence. Abhi main basic replies de sakta hoon.';
+}
+
+/* ===== CONTROLS ===== */
+$('send').onclick=()=>{const v=$('inp').value.trim();if(v){$('inp').value='';ask(v);}};
+$('inp').onkeydown=e=>{if(e.key==='Enter')$('send').click();};
+$('mic').onclick=()=>{const on=$('mic').classList.toggle('on');
+  if(on){setState('listen','Listening…','#00e0ff');targetEnergy=.4;if(NATIVE())N().listen();}
+  else{setState('idle','Tap to talk','#00ffa3');}};
+$('wrap').onclick=()=>$('mic').click();
+
+/* Suggestions */
+['🔦 Torch',' Home',' Apps',' Play music'].forEach((s,i)=>{
+  const b=document.createElement('button');b.className='sug';const ic=s.split(' ')[0],tx=s.slice(ic.length+1);
+  b.innerHTML=`<em>${ic}</em>${tx}`;b.onclick=()=>{
+    if(tx==='Torch'&&NATIVE()){N().torch(true);setTimeout(()=>N().torch(false),1500);bubble('🔦 Flash!','ai');openChat();return;}
+    if(tx==='Home'&&NATIVE()){N().goHome();return;}
+    ask(tx);};
+  $('rail').appendChild(b);});
+
+/* ===== SETTINGS ===== */
+const sheet=$('sheet');
+$('gear').onclick=()=>sheet.classList.add('open');
+$('closeSheet').onclick=()=>sheet.classList.remove('open');
+sheet.onclick=e=>{if(e.target===sheet)sheet.classList.remove('open');};
+$('gkey').value=KEY;$('pers').value=PERSONA;
+$('swAcc').onclick=()=>{if(NATIVE())N().enableAccessibility();$('swAcc').classList.toggle('on');};
+$('saveSet').onclick=()=>{KEY=$('gkey').value.trim();PERSONA=$('pers').value;
+  localStorage.setItem('nk',KEY);localStorage.setItem('np',PERSONA);
+  if(NATIVE())N().saveKey('gemini',KEY);
+  $('statustxt').textContent=KEY?'Gemini ON':'Offline mode';sheet.classList.remove('open');};
+$('statustxt').textContent=KEY?'Gemini ON':(NATIVE()?'Native ready':'Preview');
+</script>
+</body>
+</html>
+```
+
+### 16. Remaining Essential Files (Brief Content)
+
+**`app/src/main/java/com/nova/ai/services/NovaAccessibilityService.kt`**
+```kotlin
+package com.nova.ai.services
+
+import android.accessibilityservice.AccessibilityService
+import android.accessibilityservice.GestureDescription
+import android.graphics.Path
+import android.view.accessibility.AccessibilityEvent
+import android.view.accessibility.AccessibilityNodeInfo
+
+class NovaAccessibilityService : AccessibilityService() {
+    
+    companion object {
+        var instance: NovaAccessibilityService? = null
+        var lastPkg: String? = null
+        
+        fun global(action: Int): Boolean = instance?.performGlobalAction(action) ?: false
+        
+        fun tap(x: Float, y: Float): Boolean {
+            val path = Path().apply { moveTo(x, y) }
+            val gesture = GestureDescription.Builder()
+                .addStroke(GestureDescription.StrokeDescription(path, 0, 100))
+                .build()
+            return instance?.dispatchGesture(gesture, null, null) ?: false
+        }
+    }
+    
+    override fun onServiceConnected() {
+        super.onServiceConnected()
+        instance = this
+    }
+    
+    override fun onAccessibilityEvent(event: AccessibilityEvent?) {
+        event?.let {
+            if (it.eventType == AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED) {
+                lastPkg = it.packageName?.toString()
+            }
+        }
+    }
+    
+    override fun onInterrupt() {}
+}
+```
+
+**`app/src/main/java/com/nova/ai/utils/DeviceControl.kt`**
+```kotlin
+package com.nova.ai.utils
+
+import android.content.Context
+import android.hardware.camera2.CameraManager
+
+object DeviceControl {
+    fun torch(ctx: Context, on: Boolean): Boolean = try {
+        val cm = ctx.getSystemService(Context.CAMERA_SERVICE) as CameraManager
+        cm.setTorchMode(cm.cameraIdList[0], on)
+        true
+    } catch (e: Exception) { false }
+}
+```
+
+**`app/src/main/java/com/nova/ai/utils/PrivacyScrubber.kt`**
+```kotlin
+package com.nova.ai.utils
+
+object PrivacyScrubber {
+    private val tokenMap = mutableMapOf<String, String>()
+    
+    fun scrub(text: String): String {
+        var s = text
+        tokenMap.clear()
+        // Simple PII patterns
+        listOf(Regex("\\b\\d{10}\\b") to "PHONE", Regex("[\\w.+-]+@[\\w-]+\\.\\w+") to "EMAIL").forEachIndexed { idx, (pattern, tag) ->
+            pattern.findAll(s).forEach { match ->
+                val token = "<$tag$idx>"
+                tokenMap[token] = match.value
+                s = s.replace(match.value, token)
+            }
+        }
+        return s
+    }
+    
+    fun restore(text: String): String {
+        var s = text
+        tokenMap.forEach { (token, original) -> s = s.replace(token, original) }
+        return s
+    }
+}
+```
+
+**`app/src/main/res/values/strings.xml`**
+```xml
+<resources>
+    <string name="app_name">Nova AI</string>
+    <string name="accessibility_desc">Nova AI needs accessibility to control your phone (tap, swipe, open apps).</string>
+</resources>
+```
+
+**`app/src/main/res/values/themes.xml`**
+```xml
+<resources>
+    <style name="Theme.NovaAI" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <item name="colorPrimary">#7c5cff</item>
+        <item name="colorPrimaryVariant">#5a3fd6</item>
+        <item name="colorOnPrimary">#ffffff</item>
+        <item name="android:statusBarColor">#07070d</item>
+        <item name="android:navigationBarColor">#07070d</item>
+    </style>
+</resources>
+```
+
+**`app/src/main/res/xml/accessibility_service_config.xml`**
+```xml
+<accessibility-service xmlns:android="http://schemas.android.com/apk/res/android"
+    android:accessibilityEventTypes="typeWindowStateChanged|typeViewClicked"
+    android:accessibilityFeedbackType="feedbackGeneric"
+    android:notificationTimeout="100"
+    android:canPerformGestures="true"
+    android:canRetrieveWindowContent="true"
+    android:description="@string/accessibility_desc"/>
+```
+
+**`app/src/main/res/xml/file_paths.xml`**
+```xml
+<paths>
+    <external-path name="downloads" path="Download/"/>
+    <cache-path name="cache" path="/"/>
+</paths>
+```
+
+**`app/src/test/java/com/nova/ai/ExampleUnitTest.kt`**
+```kotlin
+package com.nova.ai
+
+import org.junit.Test
+import org.junit.Assert.*
+
+class ExampleUnitTest {
+    @Test
+    fun addition_isCorrect() {
+        assertEquals(4, 2 + 2)
+    }
+    
+    @Test
+    fun stringConcat_works() {
+        assertEquals("Hello Nova", "Hello" + " " + "Nova")
+    }
+}
+```
+
+**`README.md`**
+```markdown
+# Nova AI Singularity Edition
+
+Phase 10 of the ultimate Android AI assistant.
+
+## 🚀 Quick Start
+
+1. Clone this repository
+2. Open in Android Studio OR push to GitHub for automatic APK build
+3. Install APK on Android device (API 24+)
+4. Configure Gemini API key in Settings
+5. Grant Accessibility + Notification permissions
+6. Start talking!
+
+## 🔧 GitHub Actions Auto-Build
+
+This project includes a GitHub Actions workflow that automatically builds a debug APK on every push to `main` branch.
+
+To trigger a build:
+```bash
+git add .
+git commit -m "Your changes"
+git push origin main
+```
+
+Download APK from Actions tab → Artifacts section.
+
+## 📱 Features (Phase 10)
+
+- Living Quantum Orb UI with audio-reactive particles
+- Multi-LLM failover system (Gemini primary)
+- Cross-AI interoperability bridge
+- Autonomous UI agent with safety gates
+- Privacy-preserving PII scrubber
+- Full device control via Accessibility Service
+- Real-time voice conversation with TTS
+- Predictive intent engine
+- Self-awareness simulation layer
+
+## 🔑 API Keys
+
+Get your free Gemini API key from: https://aistudio.google.com/app/apikey
+
+Enter it in app Settings after installation.
+
+## 🛠️ Tech Stack
+
+- Kotlin (native Android)
+- WebView + Canvas 2D for UI
+- OkHttp for network calls
+- ML Kit for computer vision
+- GitHub Actions for CI/CD
+
+## 📄 License
+
+MIT License — see LICENSE file for details.
+```
+
+**`CHANGELOG.md`**
+```markdown
+# Changelog
+
+## v1.0.0-phase10 (2026-01-15)
+
+### Added
+- Complete Phase 10 Singularity Network features
+- Cross-AI interoperability bridge
+- Distributed cognition engine
+- Meta-cognition self-awareness simulation
+- Universal translator module
+- GitHub Actions auto-build workflow
+- Privacy scrubber for PII protection
+- Multi-LLM failover system
+
+### Fixed
+- Orb rendering issues on low-end devices
+- Voice recognition latency improvements
+- Memory leak in accessibility service
+
+### Changed
+- Updated to Gradle 8.5
+- Migrated to Kotlin DSL for build files
+- Improved error handling in LLM calls
+```
+
+**`version.json`**
+```json
+{
+  "version_code": 10,
+  "version_name": "1.0.0-phase10",
+  "download_url": "https://github.com/YOUR_USERNAME/nova-ai-singularity/releases/latest/download/nova-ai-debug.apk",
+  "changelog": "Phase 10 Singularity Edition with cross-AI interop and hive mind features",
+  "channel": "stable"
+}
+```
+
+**`app/proguard-rules.pro`**
+```proguard
+# Keep JsBridge methods accessible from JavaScript
+-keepclassmembers class com.nova.ai.bridge.JsBridge {
+    @android.webkit.JavascriptInterface <methods>;
+}
+
+# Keep data classes for JSON serialization
+-keep class com.nova.ai.ai.** { *; }
+-keep class com.nova.ai.utils.** { *; }
+
+# OkHttp
+-dontwarn okhttp3.**
+-dontwarn okio.**
+-keep class okhttp3.** { *; }
+
+# Kotlin coroutines
+-keepnames class kotlinx.coroutines.internal.MainDispatcherFactory {}
+-keepnames class kotlinx.coroutines.CoroutineExceptionHandler {}
+```
+
+═══════════════════════════════════════════
+IMPORTANT NOTES FOR GOOGLE AI STUDIO OUTPUT
+═══════════════════════════════════════════
+
+When generating this project, ensure:
+
+1. **gradle-wrapper.jar**: This is a binary file that cannot be represented as text. Instruct the user to generate it locally using:
+   ```bash
+   gradle wrapper --gradle-version 8.5
+   ```
+   Or download from official Gradle repository and place in `gradle/wrapper/`.
+
+2. **Icon resources**: The manifest references `@mipmap/ic_launcher` but we haven't included actual PNG files. User should either:
+   - Add their own icons in `app/src/main/res/mipmap-*/` folders
+   - Or use Android Studio's Image Asset tool to generate them
+   - Or temporarily remove icon attributes from manifest for initial build
+
+3. **API keys**: Never hardcode real API keys in source code. The app reads them from SharedPreferences at runtime via Settings UI.
+
+4. **Testing**: The included unit tests are minimal sanity checks. Comprehensive testing should be added in future phases.
+
+5. **Release builds**: For signed release APKs, user needs to:
+   - Generate keystore: `keytool -genkey -v -keystore nova.jks -keyalg RSA -keysize 2048 -validity 10000 -alias nova`
+   - Add signing config to app/build.gradle.kts
+   - Set environment variables for passwords in GitHub Secrets
+
+═══════════════════════════════════════════
+POST-GENERATION STEPS FOR USER
+═══════════════════════════════════════════
+
+After Google AI Studio generates all files:
+
+1. **Create GitHub Repository**:
+   - Go to github.com/new
+   - Name: `nova-ai-singularity`
+   - Public or Private (public recommended for free GitHub Actions minutes)
+   - Do NOT initialize with README (we already have one)
+
+2. **Push Code**:
+   ```bash
+   # In your local project directory
+   git init
+   git add .
+   git commit -m "feat: Phase 10 Singularity Edition complete"
+   git branch -M main
+   git remote add origin https://github.com/YOUR_USERNAME/nova-ai-singularity.git
+   git push -u origin main
+   ```
+
+3. **Monitor First Build**:
+   - Go to repository → Actions tab
+   - Watch "Nova AI Singularity Build" workflow run
+   - Should complete in 5-10 minutes with green checkmark ✅
+   - Download APK from Artifacts section
+
+4. **Install & Test**:
+   - Transfer APK to Android phone
+   - Install (enable Unknown Sources if prompted)
+   - Open app → Settings → Paste Gemini API key
+   - Grant Accessibility permission when prompted
+   - Tap orb and start talking!
+
+5. **Optional: Create Release Tag**:
+   ```bash
+   git tag v1.0.0-phase10
+   git push origin v1.0.0-phase10
+   ```
+   This triggers automatic GitHub Release creation with APK attached.
+
+═══════════════════════════════════════════
+TROUBLESHOOTING COMMON ISSUES
+═══════════════════════════════════════════
+
+| Problem | Solution |
+|---------|----------|
+| `gradlew: Permission denied` | Run `chmod +x gradlew` before pushing |
+| `SDK location not found` | GitHub runners have Android SDK pre-installed; if error persists, add `local.properties` with `sdk.dir=/usr/local/lib/android/sdk` |
+| `Could not find gradle-wrapper.jar` | Generate locally with `gradle wrapper` command and commit the jar file |
+| `Compilation failed` | Check Kotlin syntax errors; ensure all imports are correct |
+| `APK not appearing in artifacts` | Verify workflow ran successfully; check "Upload APK Artifact" step logs |
+| `App crashes on launch` | Check Logcat for errors; likely missing permission or null pointer in onCreate |
+
+═══════════════════════════════════════════
+END OF PROMPT
+═══════════════════════════════════════════
+
+Generate all files listed above with complete, working implementations. Ensure the project compiles successfully with `./gradlew assembleDebug` without any manual intervention required after cloning.
