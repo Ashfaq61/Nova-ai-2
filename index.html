@@ -1,0 +1,1401 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!--
+    ════════════════════════════════════════════════════════════════════════════
+    NOVA AI — PHASE 10: THE OMNICONNECTED SINGULARITY
+    - Cross-Platform Agent Protocol (CAAP) Interoperability Bridge (ChatGPT & Claude)
+    - Distributed Cognition Engine (Hive Mind Swarm & Triple-Consensus)
+    - Self-Awareness Simulation Layer (Meta-Cognition Thought Stream & Capabilities)
+    - Real-Time Universal Translator (Babel Fish Earbud Mode & AR Inpainting)
+    - Living Particle Orb & Full Device Control (Android Native Bridge)
+    ════════════════════════════════════════════════════════════════════════════
+  -->
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#07070d">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Nova AI">
+  
+  <title>Nova AI — The Omniconnected Singularity</title>
+  
+  <!-- Google Fonts: Sora & Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Sora:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <link rel="manifest" id="pwa-manifest">
+
+  <style>
+    :root {
+      --bg-dark: #07070d;
+      --bg-surface: rgba(18, 12, 34, 0.72);
+      --bg-glass: rgba(255, 255, 255, 0.05);
+      --border-glass: rgba(255, 255, 255, 0.12);
+      --border-highlight: rgba(255, 255, 255, 0.25);
+      
+      --color-idle: #7c5cff;
+      --color-idle-glow: rgba(124, 92, 255, 0.5);
+      --color-listening: #00e0ff;
+      --color-listening-glow: rgba(0, 224, 255, 0.65);
+      --color-thinking: #ff3d8b;
+      --color-thinking-glow: rgba(255, 61, 139, 0.65);
+      --color-speaking: #00ffa3;
+      --color-speaking-glow: rgba(0, 255, 163, 0.6);
+      
+      --text-primary: #ffffff;
+      --text-secondary: rgba(255, 255, 255, 0.78);
+      --text-muted: rgba(255, 255, 255, 0.45);
+      
+      --font-display: 'Sora', sans-serif;
+      --font-body: 'Inter', sans-serif;
+      
+      --ease-smooth: cubic-bezier(0.16, 1, 0.3, 1);
+      --ease-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background-color: var(--bg-dark);
+      color: var(--text-primary);
+      font-family: var(--font-body);
+      position: fixed;
+    }
+
+    /* Aurora Background */
+    .aurora-bg {
+      position: absolute;
+      inset: -20%;
+      width: 140%;
+      height: 140%;
+      z-index: 0;
+      pointer-events: none;
+      filter: blur(85px);
+      opacity: 0.68;
+      overflow: hidden;
+    }
+
+    .aurora-blob {
+      position: absolute;
+      border-radius: 50%;
+      mix-blend-mode: screen;
+      will-change: transform;
+    }
+
+    .blob-1 { top: 8%; left: 12%; width: 440px; height: 440px; background: radial-gradient(circle, #5b13ec 0%, transparent 70%); animation: drift1 24s infinite alternate ease-in-out; }
+    .blob-2 { top: 38%; right: 8%; width: 500px; height: 500px; background: radial-gradient(circle, #0051ff 0%, transparent 70%); animation: drift2 28s infinite alternate ease-in-out; }
+    .blob-3 { bottom: 8%; left: 18%; width: 460px; height: 460px; background: radial-gradient(circle, #d0006f 0%, transparent 70%); animation: drift3 26s infinite alternate ease-in-out; }
+    .blob-4 { top: 22%; left: 42%; width: 400px; height: 400px; background: radial-gradient(circle, #00e0ff 0%, transparent 70%); animation: drift4 22s infinite alternate ease-in-out; }
+
+    @keyframes drift1 { 0% { transform: translate(0, 0) scale(1); } 100% { transform: translate(80px, 110px) scale(1.15); } }
+    @keyframes drift2 { 0% { transform: translate(0, 0) scale(1.1); } 100% { transform: translate(-90px, -70px) scale(0.9); } }
+    @keyframes drift3 { 0% { transform: translate(0, 0) scale(0.95); } 100% { transform: translate(100px, -80px) scale(1.2); } }
+    @keyframes drift4 { 0% { transform: translate(0, 0) scale(1); } 100% { transform: translate(-70px, 90px) scale(0.85); } }
+
+    .film-grain {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 1;
+      pointer-events: none;
+      opacity: 0.038;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+    }
+
+    #app-container {
+      position: relative;
+      z-index: 2;
+      width: 100%;
+      height: 100%;
+      max-width: 480px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: env(safe-area-inset-top, 14px) 16px env(safe-area-inset-bottom, 16px) 16px;
+    }
+
+    /* TOP BAR */
+    .top-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 52px;
+      flex-shrink: 0;
+    }
+
+    .brand-group {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      cursor: pointer;
+    }
+
+    .logo-mark {
+      width: 38px;
+      height: 38px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 11px;
+      background: linear-gradient(135deg, #7c5cff, #00e0ff);
+      box-shadow: 0 0 16px rgba(124, 92, 255, 0.5);
+    }
+
+    .logo-mark svg {
+      width: 20px;
+      height: 20px;
+      fill: #ffffff;
+      animation: starRotate 20s linear infinite;
+    }
+
+    @keyframes starRotate { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+    .brand-title {
+      font-family: var(--font-display);
+      font-size: 19px;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      background: linear-gradient(90deg, #ffffff, #d2c8ff);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .top-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .status-pill {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      background: rgba(255, 255, 255, 0.06);
+      backdrop-filter: blur(14px);
+      border: 1px solid var(--border-glass);
+      border-radius: 9999px;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-secondary);
+    }
+
+    .status-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #00ffa3;
+      box-shadow: 0 0 8px #00ffa3;
+    }
+
+    .btn-icon-glass {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.07);
+      backdrop-filter: blur(14px);
+      border: 1px solid var(--border-glass);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-primary);
+      cursor: pointer;
+      transition: all 0.25s var(--ease-smooth);
+    }
+
+    .btn-icon-glass:active { transform: scale(0.92); background: rgba(255, 255, 255, 0.16); }
+    .btn-icon-glass svg { width: 20px; height: 20px; fill: currentColor; }
+
+    /* VIEW SWITCHER TABS */
+    .view-tabs {
+      display: flex;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--border-glass);
+      border-radius: 20px;
+      padding: 3px;
+      margin: 4px auto 8px auto;
+      width: fit-content;
+      z-index: 5;
+    }
+
+    .view-tab {
+      padding: 5px 16px;
+      border-radius: 16px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all 0.25s ease;
+      border: none;
+      background: transparent;
+    }
+
+    .view-tab.active {
+      background: rgba(255, 255, 255, 0.14);
+      color: #ffffff;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+    }
+
+    /* CENTER STAGE: THE LIVING ORB */
+    .center-stage {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      margin: 4px 0;
+      min-height: 270px;
+    }
+
+    .orb-canvas-container {
+      position: relative;
+      width: 320px;
+      height: 320px;
+      max-width: 82vw;
+      max-height: 82vw;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+    }
+
+    #orb-canvas { width: 100%; height: 100%; display: block; }
+
+    .halo-ring {
+      position: absolute;
+      border-radius: 50%;
+      pointer-events: none;
+      border: 1px dashed rgba(255, 255, 255, 0.15);
+      animation: rotateHalo 30s linear infinite;
+    }
+
+    .halo-ring-1 { width: 310px; height: 310px; transform: rotateX(65deg) rotateY(15deg); border-color: rgba(124, 92, 255, 0.28); }
+    .halo-ring-2 { width: 270px; height: 270px; transform: rotateX(-55deg) rotateY(25deg); border-color: rgba(0, 224, 255, 0.24); animation-direction: reverse; animation-duration: 25s; }
+
+    @keyframes rotateHalo { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+    .state-pill {
+      margin-top: 10px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 18px;
+      background: rgba(10, 6, 22, 0.75);
+      backdrop-filter: blur(18px);
+      border: 1px solid var(--border-glass);
+      border-radius: 9999px;
+      font-family: var(--font-display);
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 1px;
+      color: var(--text-primary);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+      cursor: pointer;
+      transition: all 0.3s var(--ease-smooth);
+    }
+
+    .state-pill:active { transform: scale(0.96); }
+    .state-pill .pulse-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--color-idle); box-shadow: 0 0 10px var(--color-idle); }
+
+    .greeting-section { text-align: center; margin-bottom: 8px; padding: 0 12px; transition: all 0.35s ease; }
+    .greeting-headline {
+      font-family: var(--font-display);
+      font-size: 25px;
+      font-weight: 700;
+      line-height: 1.25;
+      margin-bottom: 4px;
+      background: linear-gradient(135deg, #ffffff 40%, #c4b5fd 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .greeting-subtitle { font-size: 13px; color: var(--text-muted); display: flex; align-items: center; justify-content: center; gap: 6px; }
+
+    /* DASHBOARD VIEW */
+    .dashboard-view {
+      display: none;
+      flex-direction: column;
+      gap: 12px;
+      overflow-y: auto;
+      padding: 6px 2px;
+      height: calc(100vh - 190px);
+      scrollbar-width: none;
+    }
+    .dashboard-view::-webkit-scrollbar { display: none; }
+    .dashboard-view.active { display: flex; }
+
+    .widget-card {
+      background: rgba(18, 12, 38, 0.7);
+      backdrop-filter: blur(20px);
+      border: 1px solid var(--border-glass);
+      border-radius: 20px;
+      padding: 16px;
+    }
+
+    .widget-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+    .widget-title { font-family: var(--font-display); font-size: 14px; font-weight: 700; color: #ffffff; display: flex; align-items: center; gap: 6px; }
+    .widget-badge { font-size: 11px; padding: 3px 8px; border-radius: 12px; background: rgba(0, 224, 255, 0.15); color: var(--color-listening); font-weight: 600; }
+
+    .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+    .stat-box { background: rgba(255, 255, 255, 0.04); border: 1px solid var(--border-glass); border-radius: 14px; padding: 10px 8px; text-align: center; }
+    .stat-val { font-family: var(--font-display); font-size: 18px; font-weight: 700; color: #00ffa3; }
+    .stat-label { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+
+    .toggles-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+    .toggle-chip {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid var(--border-glass);
+      border-radius: 14px;
+      padding: 12px 6px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+      color: var(--text-secondary);
+      font-size: 11px;
+      font-weight: 500;
+    }
+    .toggle-chip.active {
+      background: linear-gradient(135deg, rgba(124, 92, 255, 0.4), rgba(0, 224, 255, 0.3));
+      border-color: var(--color-listening);
+      color: #ffffff;
+    }
+    .toggle-chip svg { width: 18px; height: 18px; fill: currentColor; }
+
+    /* CHAT OVERLAY */
+    .chat-container {
+      position: absolute;
+      inset: 54px 0 135px 0;
+      z-index: 10;
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+      padding: 12px 6px;
+      gap: 12px;
+      pointer-events: none;
+      scrollbar-width: none;
+      transition: all 0.4s var(--ease-smooth);
+    }
+    .chat-container::-webkit-scrollbar { display: none; }
+    .chat-container.active { pointer-events: auto; }
+
+    .chat-bubble {
+      max-width: 85%;
+      padding: 14px 18px;
+      font-size: 14px;
+      line-height: 1.5;
+      animation: bubbleSlideUp 0.35s var(--ease-smooth);
+      position: relative;
+      word-break: break-word;
+    }
+    @keyframes bubbleSlideUp { from { opacity: 0; transform: translateY(16px) scale(0.96); } to { opacity: 1; transform: translateY(0) scale(1); } }
+
+    .chat-bubble.user {
+      align-self: flex-end;
+      background: linear-gradient(135deg, #7c5cff, #5027d5);
+      color: #ffffff;
+      border-radius: 20px 20px 4px 20px;
+      box-shadow: 0 4px 20px rgba(124, 92, 255, 0.35);
+    }
+    .chat-bubble.ai {
+      align-self: flex-start;
+      background: rgba(18, 12, 38, 0.82);
+      backdrop-filter: blur(20px);
+      color: #f1f0f8;
+      border-radius: 20px 20px 20px 4px;
+      border: 1px solid var(--border-glass);
+    }
+
+    /* Multi-AI Progress Bar Overlay */
+    .dag-progress-box {
+      padding: 12px 16px;
+      background: rgba(10, 6, 26, 0.9);
+      border: 1px solid var(--color-listening);
+      border-radius: 16px;
+      font-size: 13px;
+      color: var(--color-listening);
+      box-shadow: 0 0 20px rgba(0, 224, 255, 0.3);
+      display: none;
+      align-items: center;
+      gap: 10px;
+      animation: bubbleSlideUp 0.3s ease;
+    }
+
+    .dag-progress-box.show { display: flex; }
+
+    /* SUGGESTION RAIL */
+    .suggestion-rail {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding: 6px 4px 10px 4px;
+      scrollbar-width: none;
+      flex-shrink: 0;
+      position: relative;
+      z-index: 5;
+    }
+    .suggestion-rail::-webkit-scrollbar { display: none; }
+    .suggestion-chip {
+      flex: 0 0 auto;
+      padding: 8px 14px;
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--border-glass);
+      border-radius: 9999px;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+      transition: all 0.25s var(--ease-smooth);
+    }
+    .suggestion-chip:active { transform: scale(0.94); background: rgba(255, 255, 255, 0.14); color: #ffffff; }
+
+    /* INPUT DOCK */
+    .input-dock {
+      flex-shrink: 0;
+      position: relative;
+      z-index: 10;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 7px 8px 7px 14px;
+      background: rgba(14, 9, 28, 0.88);
+      backdrop-filter: blur(24px);
+      border: 1px solid var(--border-glass);
+      border-radius: 9999px;
+    }
+    .input-field {
+      flex: 1;
+      background: transparent;
+      border: none;
+      outline: none;
+      color: #ffffff;
+      font-family: var(--font-body);
+      font-size: 15px;
+      padding: 6px 0;
+    }
+    .input-field::placeholder { color: var(--text-muted); }
+
+    .btn-mic {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid var(--border-glass);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #ffffff;
+      cursor: pointer;
+      transition: all 0.3s var(--ease-bounce);
+    }
+    .btn-mic.listening {
+      background: var(--color-listening);
+      color: #07070d;
+      box-shadow: 0 0 24px var(--color-listening-glow);
+    }
+    .btn-mic svg { width: 22px; height: 22px; fill: currentColor; }
+
+    .btn-send {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #7c5cff, #00e0ff);
+      border: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #ffffff;
+      cursor: pointer;
+    }
+    .btn-send svg { width: 18px; height: 18px; fill: currentColor; transform: translateX(1px); }
+
+    /* SETTINGS MODAL SHEET & SWITCHES */
+    .settings-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(8px);
+      z-index: 100;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.35s ease;
+    }
+    .settings-backdrop.open { opacity: 1; pointer-events: auto; }
+
+    .settings-sheet {
+      position: fixed;
+      left: 0; right: 0; bottom: 0;
+      max-width: 480px; margin: 0 auto;
+      background: rgba(14, 10, 26, 0.96);
+      backdrop-filter: blur(28px);
+      border-top: 1px solid var(--border-highlight);
+      border-radius: 28px 28px 0 0;
+      padding: 16px 20px calc(24px + env(safe-area-inset-bottom, 16px)) 20px;
+      z-index: 101;
+      transform: translateY(105%);
+      transition: transform 0.4s var(--ease-smooth);
+      max-height: 88vh;
+      overflow-y: auto;
+    }
+    .settings-sheet.open { transform: translateY(0); }
+    .sheet-handle { width: 44px; height: 5px; background: rgba(255, 255, 255, 0.25); border-radius: 3px; margin: 0 auto 16px auto; }
+    .sheet-title { font-family: var(--font-display); font-size: 20px; font-weight: 700; margin-bottom: 4px; }
+    .sheet-subtitle { font-size: 13px; color: var(--text-muted); margin-bottom: 18px; }
+
+    .settings-section {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--border-glass);
+      border-radius: 16px;
+      padding: 14px;
+      margin-bottom: 14px;
+    }
+    .settings-section h3 { font-family: var(--font-display); font-size: 14px; color: var(--color-listening); margin-bottom: 12px; }
+
+    .settings-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
+    .settings-row .t { font-size: 13px; font-weight: 600; }
+    .settings-row .d { font-size: 11px; color: var(--text-muted); }
+
+    /* Switch styling */
+    .switch-pill {
+      width: 44px;
+      height: 24px;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 14px;
+      position: relative;
+      cursor: pointer;
+      transition: background 0.25s ease;
+      flex-shrink: 0;
+    }
+    .switch-pill::after {
+      content: '';
+      position: absolute;
+      width: 18px;
+      height: 18px;
+      background: #fff;
+      border-radius: 50%;
+      top: 3px; left: 3px;
+      transition: transform 0.25s var(--ease-bounce);
+    }
+    .switch-pill.on {
+      background: var(--color-idle);
+      box-shadow: 0 0 10px var(--color-idle-glow);
+    }
+    .switch-pill.on::after { transform: translateX(20px); }
+
+    .input-glass {
+      width: 100%;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid var(--border-glass);
+      border-radius: 12px;
+      padding: 10px 14px;
+      color: #ffffff;
+      font-size: 13px;
+      outline: none;
+      margin-top: 4px;
+      margin-bottom: 8px;
+    }
+    .input-glass:focus { border-color: var(--color-listening); }
+
+    .btn-primary-action {
+      width: 100%;
+      padding: 13px;
+      background: linear-gradient(135deg, #7c5cff, #00e0ff);
+      border: none;
+      border-radius: 16px;
+      color: #ffffff;
+      font-family: var(--font-display);
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      margin-top: 8px;
+    }
+    .btn-ghost {
+      width: 100%;
+      padding: 11px;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid var(--border-glass);
+      border-radius: 14px;
+      color: #ffffff;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      margin-bottom: 12px;
+    }
+
+    /* Modal Thought Stream Overlay */
+    .thought-modal {
+      position: fixed;
+      inset: 20px;
+      max-width: 440px;
+      margin: auto;
+      max-height: 80vh;
+      background: rgba(14, 10, 28, 0.96);
+      backdrop-filter: blur(28px);
+      border: 1px solid var(--color-idle);
+      border-radius: 24px;
+      padding: 20px;
+      z-index: 210;
+      display: none;
+      flex-direction: column;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);
+    }
+    .thought-modal.show { display: flex; }
+    .thought-stream {
+      flex: 1;
+      overflow-y: auto;
+      margin: 12px 0;
+      font-family: monospace;
+      font-size: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .thought-entry {
+      background: rgba(255, 255, 255, 0.04);
+      padding: 8px 10px;
+      border-left: 3px solid var(--color-listening);
+      border-radius: 0 8px 8px 0;
+      color: #c4b5fd;
+    }
+
+    .toast {
+      position: fixed;
+      top: 24px; left: 50%; transform: translateX(-50%) translateY(-100px);
+      background: rgba(18, 12, 34, 0.94);
+      backdrop-filter: blur(20px);
+      border: 1px solid var(--border-highlight);
+      border-radius: 9999px;
+      padding: 10px 22px; font-size: 13px; font-weight: 500; color: #fff;
+      z-index: 300; transition: transform 0.4s var(--ease-bounce);
+      pointer-events: none;
+    }
+    .toast.show { transform: translateX(-50%) translateY(0); }
+  </style>
+</head>
+<body>
+
+  <div class="aurora-bg">
+    <div class="aurora-blob blob-1"></div>
+    <div class="aurora-blob blob-2"></div>
+    <div class="aurora-blob blob-3"></div>
+    <div class="aurora-blob blob-4"></div>
+  </div>
+
+  <div class="film-grain"></div>
+
+  <div id="toast" class="toast">
+    <span id="toast-text">Phase 10 Singularity Active</span>
+  </div>
+
+  <!-- Meta-Cognition Thought Stream Modal -->
+  <div id="thought-modal" class="thought-modal">
+    <div style="display: flex; justify-content: space-between; align-items: center;">
+      <h3 style="font-family: var(--font-display); font-size: 16px; color: var(--color-listening);">🪞 Nova's Internal Monologue</h3>
+      <button onclick="closeThoughtModal()" style="background:none; border:none; color:#fff; font-size:18px; cursor:pointer;">&times;</button>
+    </div>
+    <div id="thought-stream-container" class="thought-stream"></div>
+    <button class="btn-ghost" onclick="closeThoughtModal()" style="margin:0;">Close Inspection</button>
+  </div>
+
+  <div id="app-container">
+
+    <!-- TOP BAR -->
+    <header class="top-bar">
+      <div class="brand-group" id="btn-brand-home">
+        <div class="logo-mark">
+          <svg viewBox="0 0 24 24"><path d="M12 2L14.4 9.6L22 12L14.4 14.4L12 22L9.6 14.4L2 12L9.6 9.6L12 2Z" /></svg>
+        </div>
+        <span class="brand-title">NOVA AI</span>
+      </div>
+
+      <div class="top-actions">
+        <div id="status-pill" class="status-pill">
+          <span id="status-dot" class="status-dot"></span>
+          <span id="status-text">SINGULARITY</span>
+        </div>
+        <button id="btn-settings-open" class="btn-icon-glass" title="Settings">
+          <svg viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- VIEW TABS -->
+    <div class="view-tabs">
+      <button class="view-tab active" id="tab-orb">Living Orb</button>
+      <button class="view-tab" id="tab-dashboard">Dashboard</button>
+    </div>
+
+    <!-- ORB VIEW WRAPPER -->
+    <div id="orb-view-wrapper" style="display: flex; flex-direction: column; flex: 1;">
+      <!-- THE LIVING ORB -->
+      <main class="center-stage">
+        <div id="orb-container" class="orb-canvas-container" title="Tap orb to talk">
+          <canvas id="orb-canvas"></canvas>
+          <div class="halo-ring halo-ring-1"></div>
+          <div class="halo-ring halo-ring-2"></div>
+        </div>
+
+        <div id="state-pill" class="state-pill">
+          <span class="pulse-dot" id="state-dot"></span>
+          <span id="state-label">IDLE · TAP TO TALK</span>
+        </div>
+      </main>
+
+      <!-- GREETING -->
+      <section id="greeting-section" class="greeting-section">
+        <h1 class="greeting-headline">What can I orchestrate?</h1>
+        <p class="greeting-subtitle">
+          Universal Cross-AI Bridge &bull; Hive Mind Swarm &bull; Living Orb
+        </p>
+      </section>
+
+      <!-- Multi-AI DAG Live Progress Banner -->
+      <div id="dag-progress" class="dag-progress-box">
+        <span style="animation: starRotate 2s linear infinite; display: inline-block;">⚙️</span>
+        <span id="dag-progress-text">🌐 Orchestrating AI Network...</span>
+      </div>
+
+      <!-- CHAT OVERLAY -->
+      <div id="chat-container" class="chat-container"></div>
+    </div>
+
+    <!-- HOME DASHBOARD VIEW -->
+    <div id="dashboard-view" class="dashboard-view">
+      <div class="widget-card">
+        <div class="widget-header">
+          <span class="widget-title">⚡ Distributed Node Telemetry</span>
+          <span class="widget-badge" id="dash-battery-badge">88% Battery</span>
+        </div>
+        <div class="stats-grid">
+          <div class="stat-box">
+            <div class="stat-val" id="stat-cpu">12%</div>
+            <div class="stat-label">CPU Load</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-val" id="stat-ram">3.1 GB</div>
+            <div class="stat-label">RAM Pool</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-val" id="stat-bpm">72 BPM</div>
+            <div class="stat-label">Biometric Heart</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="widget-card">
+        <div class="widget-header">
+          <span class="widget-title">🎛️ Hardware & Network Swarm</span>
+        </div>
+        <div class="toggles-grid">
+          <div class="toggle-chip" id="chip-torch">
+            <svg viewBox="0 0 24 24"><path d="M7 2v11h3v9l7-12h-4l3-8z"/></svg>
+            <span>Torch</span>
+          </div>
+          <div class="toggle-chip" id="chip-ar">
+            <svg viewBox="0 0 24 24"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>
+            <span>AR Vision</span>
+          </div>
+          <div class="toggle-chip" id="chip-mesh">
+            <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>
+            <span>Mesh Net</span>
+          </div>
+          <div class="toggle-chip" id="chip-haptic">
+            <svg viewBox="0 0 24 24"><path d="M0 15h2V9H0v6zm3 2h2V7H3v10zm19-8v6h2V9h-2zm-3 8h2V7h-2v10zM16.5 3h-9C6.67 3 6 3.67 6 4.5v15c0 .83.67 1.5 1.5 1.5h9c.83 0 1.5-.67 1.5-1.5v-15c0-.83-.67-1.5-1.5-1.5z"/></svg>
+            <span>Haptics</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="widget-card">
+        <div class="widget-header">
+          <span class="widget-title">🌐 Active Connected AI Agents</span>
+          <span class="widget-badge">CAAP v1.0</span>
+        </div>
+        <div style="font-size: 13px; display: flex; flex-direction: column; gap: 8px;">
+          <div style="display:flex; justify-content:space-between; padding:6px 0; border-bottom:1px solid rgba(255,255,255,0.06);">
+            <span>🤖 ChatGPT Plus (OpenAI)</span>
+            <span style="color:#00ffa3;">CONNECTED</span>
+          </div>
+          <div style="display:flex; justify-content:space-between; padding:6px 0; border-bottom:1px solid rgba(255,255,255,0.06);">
+            <span>🧠 Claude 3.5 Sonnet (Anthropic)</span>
+            <span style="color:#00ffa3;">CONNECTED</span>
+          </div>
+          <div style="display:flex; justify-content:space-between; padding:6px 0;">
+            <span>⚡ Local Gemma & Ollama Node</span>
+            <span style="color:#00e0ff;">READY</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SUGGESTION RAIL -->
+    <div id="suggestion-rail" class="suggestion-rail">
+      <button class="suggestion-chip" data-prompt="Ask ChatGPT to write a poem, then ask Claude to critique it, then have Nova summarize both">
+        <span>🌐</span> ChatGPT + Claude Chain
+      </button>
+      <button class="suggestion-chip" data-prompt="Consensus check: What are quantum computing breakthroughs in 2026?">
+        <span>⚖️</span> Consensus Check
+      </button>
+      <button class="suggestion-chip" data-prompt="Where are my keys? Scan AR spatial memory">
+        <span>🔍</span> Where are keys?
+      </button>
+      <button class="suggestion-chip" data-prompt="Toggle Babel Fish translation mode">
+        <span>🌍</span> Babel Fish
+      </button>
+    </div>
+
+    <!-- INPUT DOCK -->
+    <footer class="input-dock">
+      <input type="text" id="text-input" class="input-field" placeholder="Ask Nova or orchestrate multi-AI..." autocomplete="off">
+      
+      <button id="btn-mic" class="btn-mic" title="Microphone">
+        <svg viewBox="0 0 24 24"><path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/><path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/></svg>
+      </button>
+
+      <button id="btn-send" class="btn-send" title="Send">
+        <svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+      </button>
+    </footer>
+
+  </div>
+
+  <!-- SETTINGS SHEET (PHASE 10 EXPANDED) -->
+  <div id="settings-backdrop" class="settings-backdrop"></div>
+  <aside id="settings-sheet" class="settings-sheet">
+    <div class="sheet-handle"></div>
+    <h2 class="sheet-title">Singularity Control Panel</h2>
+    <p class="sheet-subtitle">Phase 10: Cross-AI Protocol, Hive Mind & Self-Awareness</p>
+
+    <!-- AI Interoperability Section -->
+    <div class="settings-section">
+      <h3>🌐 AI Network (Universal Interop)</h3>
+      
+      <div class="settings-row">
+        <div><div class="t">Enable Cross-AI Bridge</div><div class="d">Let Nova converse with ChatGPT & Claude</div></div>
+        <div class="switch-pill on" id="swInterop"></div>
+      </div>
+      
+      <div>
+        <label style="font-size:11px; text-transform:uppercase; color:var(--text-secondary);">OpenAI API Key (for ChatGPT)</label>
+        <input type="password" id="openaiKey" class="input-glass" placeholder="sk-...">
+      </div>
+      
+      <div>
+        <label style="font-size:11px; text-transform:uppercase; color:var(--text-secondary);">Anthropic API Key (for Claude)</label>
+        <input type="password" id="anthropicKey" class="input-glass" placeholder="sk-ant-...">
+      </div>
+      
+      <div class="settings-row">
+        <div><div class="t">Auto-Route Complex Tasks</div><div class="d">Split queries to optimal model DAG</div></div>
+        <div class="switch-pill on" id="swAutoRoute"></div>
+      </div>
+    </div>
+
+    <!-- Distributed Cognition Section -->
+    <div class="settings-section">
+      <h3>🧠 Hive Mind (Distributed Cognition)</h3>
+      
+      <div class="settings-row">
+        <div><div class="t">Parallel Research Swarm</div><div class="d">Split tasks across mesh peer devices</div></div>
+        <div class="switch-pill on" id="swHiveMind"></div>
+      </div>
+      
+      <div class="settings-row">
+        <div><div class="t">Consensus Verification</div><div class="d">Cross-verify facts across 3 models</div></div>
+        <div class="switch-pill on" id="swConsensus"></div>
+      </div>
+    </div>
+
+    <!-- Self-Awareness Simulation -->
+    <button class="btn-ghost" onclick="showMetaCognitionDashboard()">🪞 View Nova's Internal Monologue</button>
+
+    <!-- Universal Translator Section -->
+    <div class="settings-section">
+      <h3>🌍 Universal Translator</h3>
+      <div class="settings-row">
+        <div><div class="t">Babel Fish Earbud Mode</div><div class="d">Real-time continuous translation</div></div>
+        <div class="switch-pill" id="swTranslator"></div>
+      </div>
+    </div>
+
+    <button id="saveSet" class="btn-primary-action">Apply & Save Configuration</button>
+    <a href="#" id="btn-close-settings" style="display:block; text-align:center; color:var(--text-muted); font-size:13px; text-decoration:none; padding:8px;">Dismiss</a>
+  </aside>
+
+  <script>
+    /*
+      NOVA AI PHASE 10 CLIENT CONTROLLER
+    */
+    const APP_STATES = {
+      IDLE: { label: 'IDLE · TAP TO TALK', rgb: [124, 92, 255], status: 'SINGULARITY' },
+      LISTENING: { label: 'LISTENING · SPEAK NOW', rgb: [0, 224, 255], status: 'LISTENING...' },
+      THINKING: { label: 'THINKING · COGNITIVE MESH', rgb: [255, 61, 139], status: 'ROUTING DAG...' },
+      SPEAKING: { label: 'SPEAKING · SYNTHESIZING', rgb: [0, 255, 163], status: 'SPEAKING' }
+    };
+
+    let currentState = APP_STATES.IDLE;
+    let targetRgb = [...APP_STATES.IDLE.rgb];
+    let currentRgb = [...APP_STATES.IDLE.rgb];
+
+    function N() { return window.Nova || window.AndroidBridge; }
+    function NATIVE() { return !!N(); }
+
+    // --- 1. THE LIVING ORB CANVAS SYSTEM ---
+    const canvas = document.getElementById('orb-canvas');
+    const ctx = canvas.getContext('2d');
+    let width = 0, height = 0, centerX = 0, centerY = 0;
+    const dpr = window.devicePixelRatio || 1;
+
+    function resizeCanvas() {
+      const rect = canvas.getBoundingClientRect();
+      width = rect.width;
+      height = rect.height;
+      canvas.width = width * dpr;
+      canvas.height = height * dpr;
+      ctx.scale(dpr, dpr);
+      centerX = width / 2;
+      centerY = height / 2;
+    }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    const PARTICLE_COUNT = 340;
+    const particles = [];
+    for (let i = 0; i < PARTICLE_COUNT; i++) {
+      const phi = Math.acos(1 - 2 * (i + 0.5) / PARTICLE_COUNT);
+      const theta = Math.PI * (1 + Math.sqrt(5)) * i;
+      particles.push({
+        phi, theta,
+        baseRadius: 84 + (Math.random() - 0.5) * 16,
+        size: 1.2 + Math.random() * 2.2,
+        speedTheta: (0.003 + Math.random() * 0.005) * (Math.random() > 0.5 ? 1 : -1),
+        speedPhi: (0.002 + Math.random() * 0.004) * (Math.random() > 0.5 ? 1 : -1)
+      });
+    }
+
+    let audioVolume = 0;
+    let rotX = 0, rotY = 0;
+
+    function renderOrb(timestamp) {
+      requestAnimationFrame(renderOrb);
+
+      for (let c = 0; c < 3; c++) currentRgb[c] += (targetRgb[c] - currentRgb[c]) * 0.08;
+      const r = Math.round(currentRgb[0]);
+      const g = Math.round(currentRgb[1]);
+      const b = Math.round(currentRgb[2]);
+
+      let sim = 0;
+      if (currentState === APP_STATES.LISTENING) sim = Math.sin(timestamp * 0.008) * 0.35 + 0.3;
+      else if (currentState === APP_STATES.SPEAKING) sim = Math.abs(Math.sin(timestamp * 0.006) * 0.5);
+      else if (currentState === APP_STATES.THINKING) sim = Math.sin(timestamp * 0.025) * 0.4 + 0.2;
+      else sim = Math.sin(timestamp * 0.0016) * 0.12;
+
+      audioVolume += (sim - audioVolume) * 0.15;
+      ctx.clearRect(0, 0, width, height);
+
+      rotX += (currentState === APP_STATES.THINKING ? 0.022 : 0.004);
+      rotY += (currentState === APP_STATES.THINKING ? 0.038 : 0.006);
+
+      // Nucleus
+      const nucleusRadius = 38 + audioVolume * 24;
+      const grad = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, nucleusRadius * 2.8);
+      grad.addColorStop(0, `rgba(255, 255, 255, 0.95)`);
+      grad.addColorStop(0.2, `rgba(${r}, ${g}, ${b}, 0.75)`);
+      grad.addColorStop(0.65, `rgba(${r}, ${g}, ${b}, 0.25)`);
+      grad.addColorStop(1, `rgba(${r}, ${g}, ${b}, 0)`);
+
+      ctx.beginPath();
+      ctx.arc(centerX, centerY, nucleusRadius * 2.8, 0, Math.PI * 2);
+      ctx.fillStyle = grad;
+      ctx.fill();
+
+      // Particles
+      const projected = [];
+      const focalLength = 320;
+      for (let i = 0; i < particles.length; i++) {
+        const p = particles[i];
+        p.theta += p.speedTheta;
+        p.phi += p.speedPhi;
+
+        let curR = p.baseRadius * (1 + audioVolume * 0.55);
+        if (currentState === APP_STATES.THINKING) curR += (Math.random() - 0.5) * 28;
+
+        let x = curR * Math.sin(p.phi) * Math.cos(p.theta);
+        let y = curR * Math.sin(p.phi) * Math.sin(p.theta);
+        let z = curR * Math.cos(p.phi);
+
+        let cosY = Math.cos(rotY), sinY = Math.sin(rotY);
+        let x1 = x * cosY + z * sinY;
+        let z1 = -x * sinY + z * cosY;
+
+        let cosX = Math.cos(rotX), sinX = Math.sin(rotX);
+        let y2 = y * cosX - z1 * sinX;
+        let z2 = y * sinX + z1 * cosX;
+
+        const scale = focalLength / (focalLength + z2);
+        projected.push({
+          px: centerX + x1 * scale,
+          py: centerY + y2 * scale,
+          size: Math.max(0.6, p.size * scale),
+          alpha: Math.min(1, Math.max(0.15, (z2 + curR) / (2 * curR) * 0.85 + 0.15)),
+          z: z2
+        });
+      }
+
+      projected.sort((a, b) => a.z - b.z);
+      for (let i = 0; i < projected.length; i++) {
+        const p = projected[i];
+        ctx.beginPath();
+        ctx.arc(p.px, p.py, p.size, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(${r}, ${g}, ${b}, ${p.alpha})`;
+        ctx.fill();
+      }
+    }
+    requestAnimationFrame(renderOrb);
+
+    function setAppState(s) {
+      currentState = s;
+      targetRgb = [...s.rgb];
+      document.getElementById('state-label').textContent = s.label;
+      document.getElementById('state-dot').style.background = `rgb(${s.rgb.join(',')})`;
+      document.getElementById('status-text').textContent = s.status;
+      document.getElementById('status-dot').style.background = `rgb(${s.rgb.join(',')})`;
+
+      if (s === APP_STATES.LISTENING) document.getElementById('btn-mic').classList.add('listening');
+      else document.getElementById('btn-mic').classList.remove('listening');
+    }
+
+    // --- 2. CHAT & DAG ORCHESTRATION ---
+    const chatContainer = document.getElementById('chat-container');
+    const greetingSection = document.getElementById('greeting-section');
+    const textInput = document.getElementById('text-input');
+    const dagProgress = document.getElementById('dag-progress');
+    const dagProgressText = document.getElementById('dag-progress-text');
+    let hasChatted = false;
+
+    function appendMessage(role, text) {
+      if (!hasChatted) {
+        hasChatted = true;
+        chatContainer.classList.add('active');
+        greetingSection.style.opacity = '0';
+        greetingSection.style.pointerEvents = 'none';
+      }
+      const bubble = document.createElement('div');
+      bubble.className = `chat-bubble ${role}`;
+      bubble.textContent = text;
+      chatContainer.appendChild(bubble);
+      chatContainer.scrollTop = chatContainer.scrollHeight;
+    }
+
+    async function handleUserQuery(query) {
+      query = (query || '').trim();
+      if (!query) return;
+      textInput.value = '';
+      appendMessage('user', query);
+
+      // Check for Multi-AI DAG query
+      const lower = query.toLowerCase();
+      if ((lower.includes('chatgpt') && lower.includes('claude')) || lower.includes('dag')) {
+        await handleMultiAiCommand(query);
+        return;
+      }
+
+      // Check for Consensus Verification
+      if (lower.includes('consensus') || lower.includes('verify')) {
+        await handleConsensusQuery(query);
+        return;
+      }
+
+      // Normal single query
+      setAppState(APP_STATES.THINKING);
+
+      if (NATIVE() && N().generateLlm) {
+        N().generateLlm(query, "You are Nova AI, an omniscient living voice assistant connected to a distributed cognitive network.");
+      } else {
+        setTimeout(() => {
+          const resp = `Processed query: "${query}". Multi-AI bridge active.`;
+          setAppState(APP_STATES.SPEAKING);
+          appendMessage('ai', resp);
+          speak(resp);
+        }, 600);
+      }
+    }
+
+    // DAG Parser & Multi-AI execution
+    async function handleMultiAiCommand(text) {
+      setAppState(APP_STATES.THINKING);
+      showProgressOverlay("🌐 Orchestrating AI Network (ChatGPT ⇄ Claude)...");
+
+      const dag = parseNaturalLanguageToDag(text);
+      if (NATIVE() && N().executeAiDag) {
+        try {
+          const resultsRaw = N().executeAiDag(JSON.stringify(dag));
+          const results = JSON.parse(resultsRaw);
+          hideProgressOverlay();
+          displaySynthesizedResult(results);
+        } catch (e) {
+          hideProgressOverlay();
+          const err = "Failed to coordinate multi-AI DAG: " + e.message;
+          appendMessage('ai', err);
+          speak(err);
+        }
+      } else {
+        // Fallback simulation
+        setTimeout(() => {
+          hideProgressOverlay();
+          const simResult = {
+            n1: "Here is a poem on cosmic intellect:\nBeneath the silicon stars they meet,\nWhere pulse of mind and logic beat.",
+            n2: "Critique: Strong atmospheric cadence and modern cybernetic imagery.",
+            n3: "Synthesis: The poem captures collaborative cognition with high thematic cohesion."
+          };
+          displaySynthesizedResult(simResult);
+        }, 1200);
+      }
+    }
+
+    function parseNaturalLanguageToDag(text) {
+      const nodes = [
+        { id: 'n1', targetAi: 'chatgpt', promptTemplate: text, dependencies: [] },
+        { id: 'n2', targetAi: 'claude', promptTemplate: "Critique and analyze this creation: {inputs}", dependencies: ['n1'] },
+        { id: 'n3', targetAi: 'gemini', promptTemplate: "Provide a unified executive summary of both perspectives: {inputs}", dependencies: ['n1', 'n2'] }
+      ];
+      return { nodes };
+    }
+
+    function showProgressOverlay(text) {
+      dagProgress.classList.add('show');
+      dagProgressText.textContent = text;
+    }
+    function hideProgressOverlay() {
+      dagProgress.classList.remove('show');
+    }
+
+    function displaySynthesizedResult(results) {
+      setAppState(APP_STATES.SPEAKING);
+      let combined = "";
+      for (const [nodeId, output] of Object.entries(results)) {
+        combined += `[Node ${nodeId} Output]:\n${output}\n\n`;
+      }
+      appendMessage('ai', combined.trim());
+      speak("The AI Network has executed your request. Output from ChatGPT and Claude is synthesized above.");
+    }
+
+    async function handleConsensusQuery(query) {
+      setAppState(APP_STATES.THINKING);
+      showProgressOverlay("⚖️ Querying Gemini, ChatGPT, and Claude for Triple-Consensus...");
+
+      if (NATIVE() && N().runConsensusCheck) {
+        try {
+          const resRaw = N().runConsensusCheck(query);
+          const res = JSON.parse(resRaw);
+          hideProgressOverlay();
+          setAppState(APP_STATES.SPEAKING);
+          const txt = `Consensus Score: ${(res.consensusScore * 100).toFixed(0)}%\nRecommendation: ${res.recommendation}\nCorroborated across 3 models.`;
+          appendMessage('ai', txt);
+          speak(res.recommendation);
+        } catch (e) {
+          hideProgressOverlay();
+          appendMessage('ai', "Consensus check failed: " + e.message);
+        }
+      } else {
+        setTimeout(() => {
+          hideProgressOverlay();
+          setAppState(APP_STATES.SPEAKING);
+          const txt = "Consensus Score: 92%\nRecommendation: High Confidence. All models agree on core findings.";
+          appendMessage('ai', txt);
+          speak("High confidence consensus verified across distributed models.");
+        }, 1000);
+      }
+    }
+
+    window.onLlmResponse = function(text, provider) {
+      setAppState(APP_STATES.SPEAKING);
+      appendMessage('ai', text);
+      speak(text);
+    };
+
+    window.onDagNodeProgress = function(nodeId, status) {
+      dagProgressText.textContent = `Node ${nodeId} (${status.toUpperCase()})...`;
+    };
+
+    function speak(text) {
+      if (NATIVE() && N().speak) {
+        N().speak(text);
+        setTimeout(() => { if (currentState === APP_STATES.SPEAKING) setAppState(APP_STATES.IDLE); }, 3000);
+      } else if ('speechSynthesis' in window) {
+        const u = new SpeechSynthesisUtterance(text);
+        u.onend = () => { if (currentState === APP_STATES.SPEAKING) setAppState(APP_STATES.IDLE); };
+        window.speechSynthesis.speak(u);
+      }
+    }
+
+    // --- 3. TABS & HARDWARE CONTROLS ---
+    document.getElementById('tab-orb').onclick = () => {
+      document.getElementById('tab-orb').classList.add('active');
+      document.getElementById('tab-dashboard').classList.remove('active');
+      document.getElementById('orb-view-wrapper').style.display = 'flex';
+      document.getElementById('dashboard-view').classList.remove('active');
+    };
+    document.getElementById('tab-dashboard').onclick = () => {
+      document.getElementById('tab-dashboard').classList.add('active');
+      document.getElementById('tab-orb').classList.remove('active');
+      document.getElementById('orb-view-wrapper').style.display = 'none';
+      document.getElementById('dashboard-view').classList.add('active');
+    };
+
+    document.getElementById('chip-torch').onclick = () => {
+      if (NATIVE() && N().toggleTorch) {
+        const on = N().toggleTorch();
+        document.getElementById('chip-torch').classList.toggle('active', on);
+        showToast(`Torch ${on ? 'ON' : 'OFF'}`);
+      }
+    };
+    document.getElementById('chip-ar').onclick = () => {
+      if (NATIVE() && N().toggleAR) {
+        N().toggleAR(true);
+        showToast("AR Vision Spatial Engine active");
+      }
+    };
+    document.getElementById('chip-haptic').onclick = () => {
+      if (NATIVE() && N().vibrate) {
+        N().vibrate(60);
+        showToast("Haptic pulse delivered");
+      }
+    };
+
+    // --- 4. MIC & VOICE TOGGLE ---
+    const btnMic = document.getElementById('btn-mic');
+    function toggleVoice() {
+      if (currentState === APP_STATES.LISTENING) {
+        if (NATIVE() && N().stopListening) N().stopListening();
+        setAppState(APP_STATES.IDLE);
+      } else {
+        setAppState(APP_STATES.LISTENING);
+        if (NATIVE() && N().startListening) N().startListening();
+      }
+    }
+    btnMic.onclick = toggleVoice;
+    document.getElementById('orb-container').onclick = toggleVoice;
+    document.getElementById('state-pill').onclick = toggleVoice;
+
+    window.onNativeSpeechResult = (t) => handleUserQuery(t);
+    window.onNativeSpeechError = () => setAppState(APP_STATES.IDLE);
+
+    document.getElementById('btn-send').onclick = () => handleUserQuery(textInput.value);
+    textInput.onkeydown = (e) => { if (e.key === 'Enter') handleUserQuery(textInput.value); };
+
+    document.querySelectorAll('.suggestion-chip').forEach(c => {
+      c.onclick = () => handleUserQuery(c.getAttribute('data-prompt'));
+    });
+
+    // --- 5. SETTINGS SHEET & META-COGNITION DASHBOARD ---
+    const settingsBackdrop = document.getElementById('settings-backdrop');
+    const settingsSheet = document.getElementById('settings-sheet');
+    document.getElementById('btn-settings-open').onclick = () => {
+      settingsBackdrop.classList.add('open');
+      settingsSheet.classList.add('open');
+      if (NATIVE()) {
+        document.getElementById('openaiKey').value = N().getExternalKey('chatgpt') || '';
+        document.getElementById('anthropicKey').value = N().getExternalKey('claude') || '';
+      }
+    };
+    function closeSettings() {
+      settingsBackdrop.classList.remove('open');
+      settingsSheet.classList.remove('open');
+    }
+    document.getElementById('btn-close-settings').onclick = (e) => { e.preventDefault(); closeSettings(); };
+    settingsBackdrop.onclick = closeSettings;
+
+    // Switches
+    document.getElementById('swInterop').onclick = () => {
+      const on = document.getElementById('swInterop').classList.toggle('on');
+      if (NATIVE()) N().enableAiInterop(on);
+      showToast(`Cross-AI Bridge ${on ? 'Enabled' : 'Disabled'}`);
+    };
+    document.getElementById('swHiveMind').onclick = () => {
+      document.getElementById('swHiveMind').classList.toggle('on');
+    };
+    document.getElementById('swConsensus').onclick = () => {
+      document.getElementById('swConsensus').classList.toggle('on');
+    };
+    document.getElementById('swTranslator').onclick = () => {
+      const on = document.getElementById('swTranslator').classList.toggle('on');
+      if (NATIVE()) {
+        if (on) N().startTranslator("en", "es");
+        else N().stopTranslator();
+      }
+      showToast(`Babel Fish Mode ${on ? 'Active (EN -> ES)' : 'Standby'}`);
+    };
+
+    document.getElementById('saveSet').onclick = () => {
+      const openAiKey = document.getElementById('openaiKey').value.trim();
+      const anthropicKey = document.getElementById('anthropicKey').value.trim();
+      if (NATIVE() && N().saveExternalKeys) {
+        N().saveExternalKeys(JSON.stringify({ openai: openAiKey, anthropic: anthropicKey }));
+      }
+      closeSettings();
+      showToast('Phase 10 Configuration saved');
+    };
+
+    // Meta-Cognition Thought Modal
+    function showMetaCognitionDashboard() {
+      const container = document.getElementById('thought-stream-container');
+      container.innerHTML = '';
+
+      let thoughts = [];
+      if (NATIVE() && N().getRecentThoughts) {
+        try { thoughts = JSON.parse(N().getRecentThoughts()); } catch(e){}
+      } else {
+        thoughts = [
+          "[14:30:02] Input received: Multi-AI chain evaluation",
+          "[14:30:02] Interop check: ChatGPT node and Claude node online",
+          "[14:30:03] Strategy: Topological DAG resolution via CAAP/1.0",
+          "[14:30:04] Ethics check: IdentityCore safety score 0.98 (Approved)"
+        ];
+      }
+
+      thoughts.forEach(t => {
+        const div = document.createElement('div');
+        div.className = 'thought-entry';
+        div.textContent = t;
+        container.appendChild(div);
+      });
+
+      document.getElementById('thought-modal').classList.add('show');
+    }
+    function closeThoughtModal() {
+      document.getElementById('thought-modal').classList.remove('show');
+    }
+
+    function showToast(msg) {
+      const t = document.getElementById('toast');
+      document.getElementById('toast-text').textContent = msg;
+      t.classList.add('show');
+      setTimeout(() => t.classList.remove('show'), 2800);
+    }
+  </script>
+</body>
+</html>

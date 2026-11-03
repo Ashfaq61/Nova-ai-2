@@ -1,0 +1,6 @@
+{
+  "name": "Nova AI",
+  "description": "An intelligent voice assistant with a living animated orb interface.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

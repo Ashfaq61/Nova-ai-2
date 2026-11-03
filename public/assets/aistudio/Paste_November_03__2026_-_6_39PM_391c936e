@@ -1,0 +1,860 @@
+EXTEND the existing Nova AI Singularity project (Phase 9) to PHASE 10: THE OMNICONNECTED SINGULARITY.
+
+Current Status: Phase 9 complete (Orb, Multi-LLM, AR Vision, Biometrics, Mesh, Self-Evolution all working).
+New Goal: Enable Nova to communicate with OTHER AI assistants (ChatGPT, Claude, Siri, Google Assistant, other Nova instances) and form a distributed cognitive network.
+
+═══════════════════════════════════════════
+MODULE 1: UNIVERSAL AI INTEROPERABILITY BRIDGE (The "Diplomat")
+═══════════════════════════════════════════
+
+CORE CONCEPT: Nova acts as a universal translator and router between disparate AI systems. It doesn't just use APIs; it *converses* with other agents on behalf of the user.
+
+FEATURES:
+1. Cross-Platform Agent Protocol (CAAP):
+   - Define a standard JSON-RPC over WebSocket/HTTP protocol for AI-to-AI communication.
+   - Message Format:
+     ```json
+     {
+       "protocol": "CAAP/1.0",
+       "sender_id": "nova_device_abc123",
+       "receiver_id": "chatgpt_plus_user_xyz", // or "broadcast"
+       "intent": "delegate_task|query_knowledge|negotiate|handoff",
+       "payload": {
+         "task_description": "Summarize this 50-page PDF attached",
+         "context": {"user_mood": "calm", "urgency": "high"},
+         "attachments": ["base64_pdf_data..."]
+       },
+       "auth_token": "encrypted_session_key"
+     }
+     ```
+
+2. Built-in Connectors (Pre-configured):
+   - **ChatGPT Plus**: Use OpenAI Assistants API or browser automation (via UiAgent) if API unavailable.
+   - **Claude 3.5 Sonnet**: Anthropic API integration for long-context reasoning.
+   - **Google Assistant/Siri**: Intent forwarding via Android Intents (`android.speech.action.RECOGNIZE_SPEECH` result sharing).
+   - **Other Nova Instances**: Direct encrypted mesh link (from Phase 7/9) enhanced with CAAP.
+   - **Local LLMs (Ollama/LM Studio)**: HTTP endpoint discovery on local network (port 11434).
+
+3. Intelligent Routing Logic:
+   - User says: "Ask ChatGPT to write a poem, then ask Claude to critique it, then have Nova summarize both."
+   - Nova parses this into a DAG (Directed Acyclic Graph) of tasks:
+     1. Node A: Call ChatGPT API → Get Poem
+     2. Node B: Call Claude API (input: Poem from A) → Get Critique
+     3. Node C: Local Nova Synthesis (input: A+B) → Final Summary
+   - Execute nodes in parallel where possible, sequentially where dependent.
+   - Show live progress in chat: "🤖 ChatGPT writing... ✅ Done. 🧠 Claude critiquing... ⏳ 60%"
+
+4. Voice Handoff Mode:
+   - User talking to Nova → Nova detects query better suited for another AI → 
+   - Nova says: "This sounds like a job for Claude's deep analysis. Shall I ask them?"
+   - User confirms → Nova forwards voice transcript + context to target AI → 
+   - Target AI responds → Nova speaks response in Nova's voice (maintaining persona consistency).
+
+5. Shared Memory Pool (Opt-In):
+   - When connected to other Novas or trusted AIs, share specific KG subsets.
+   - Example: Nova on Phone shares "User's Calendar" with Nova on Car Head Unit.
+   - Privacy Tags: Each memory entry tagged {private, family_shared, public_ai_network}.
+
+IMPLEMENTATION (Kotlin):
+```kotlin
+object AiInteropBridge {
+    data class AiEndpoint(val name: String, val type: String, val url: String?, val apiKey: String?)
+    
+    private val endpoints = mutableMapOf<String, AiEndpoint>(
+        "chatgpt" to AiEndpoint("ChatGPT", "openai", null, BuildConfig.OPENAI_KEY),
+        "claude" to AiEndpoint("Claude", "anthropic", null, BuildConfig.ANTHROPIC_KEY),
+        "local_ollama" to AiEndpoint("Ollama", "local_http", "http://192.168.1.5:11434", null),
+        "mesh_nova" to AiEndpoint("Mesh Nova", "caap_mesh", null, null) // Uses existing mesh
+    )
+    
+    suspend fun executeDag(dag: TaskDAG): Map<String, String> {
+        val results = ConcurrentHashMap<String, String>()
+        
+        // Topological sort + parallel execution
+        dag.nodes.forEach { node ->
+            launch(Dispatchers.IO) {
+                val inputs = node.dependencies.mapNotNull { results[it] }.joinToString("\n")
+                val output = routeToAi(node.targetAi, node.promptTemplate.replace("{inputs}", inputs))
+                results[node.id] = output
+            }
+        }
+        
+        // Wait for all completions (with timeout)
+        delay(30_000) // Max 30s total
+        return results
+    }
+    
+    private suspend fun routeToAi(aiName: String, prompt: String): String {
+        val endpoint = endpoints[aiName] ?: throw Exception("Unknown AI: $aiName")
+        
+        return when(endpoint.type) {
+            "openai" -> callOpenAiApi(endpoint.apiKey!!, prompt)
+            "anthropic" -> callAnthropicApi(endpoint.apiKey!!, prompt)
+            "local_http" -> callLocalHttp(endpoint.url!!, prompt)
+            "caap_mesh" -> sendViaMesh(prompt) // Uses Phase 9 MeshNetwork
+            "intent_forward" -> forwardToSystemAssistant(prompt) // Android Intent
+            else -> throw Exception("Unsupported AI type")
+        }
+    }
+    
+    private suspend fun callOpenAiApi(key: String, prompt: String): String {
+        val client = OkHttpClient()
+        val body = JSONObject().put("model", "gpt-4o").put("messages", JSONArray().put(JSONObject().put("role", "user").put("content", prompt)))
+        val request = Request.Builder()
+            .url("https://api.openai.com/v1/chat/completions")
+            .addHeader("Authorization", "Bearer $key")
+            .post(body.toString().toRequestBody("application/json".toMediaType()))
+            .build()
+        
+        val response = client.newCall(request).await()
+        return JSONObject(response.body!!.string()).getJSONArray("choices").getJSONObject(0).getJSONObject("message").getString("content")
+    }
+    
+    // Similar implementations for Anthropic, Local HTTP, etc.
+}
+
+data class TaskDAG(val nodes: List<TaskNode>)
+data class TaskNode(val id: String, val targetAi: String, val promptTemplate: String, val dependencies: List<String>)
+```
+
+UI INTEGRATION (JavaScript in index.html):
+```javascript
+// New command parser for multi-AI tasks
+async function handleMultiAiCommand(text) {
+    // Parse natural language into DAG
+    // Example: "Ask ChatGPT for recipe, Claude for nutrition facts"
+    const dag = await parseNaturalLanguageToDag(text);
+    
+    showProgressOverlay("🌐 Orchestrating AI Network...");
+    
+    const results = await Nova.executeAiDag(JSON.stringify(dag));
+    
+    hideProgressOverlay();
+    displaySynthesizedResult(results);
+}
+
+function parseNaturalLanguageToDag(text) {
+    // Simple rule-based parser for demo; in production use Gemini to extract structure
+    const nodes = [];
+    if(text.toLowerCase().includes('chatgpt')) {
+        nodes.push({id:'n1', targetAi:'chatgpt', promptTemplate: text, dependencies:[]});
+    }
+    if(text.toLowerCase().includes('claude')) {
+        nodes.push({id:'n2', targetAi:'claude', promptTemplate: "Critique this: {inputs}", dependencies:['n1']});
+    }
+    return {nodes};
+}
+```
+
+═══════════════════════════════════════════
+MODULE 2: DISTRIBUTED COGNITION ENGINE (Hive Mind Lite)
+═══════════════════════════════════════════
+
+CONCEPT: Multiple devices running Nova form a temporary "hive mind" to solve complex problems faster than single device.
+
+SCENARIOS:
+1. Parallel Research Swarm:
+   - User: "Research quantum computing breakthroughs in 2026 from 5 different angles."
+   - Nova splits task into 5 sub-queries.
+   - If 2 other Novas are nearby (mesh), delegate 2 sub-queries to them.
+   - All 3 devices work simultaneously → Results merged → Unified summary presented.
+   - Speedup: ~3x faster than single device sequential search.
+
+2. Load Balancing for Heavy Compute:
+   - On-device Gemma inference is slow on old phone.
+   - Nova detects nearby powerful tablet/laptop running Nova.
+   - Offloads embedding generation or image analysis to stronger device via mesh.
+   - Result returned seamlessly to phone UI.
+
+3. Consensus Verification:
+   - For critical decisions (financial advice, medical info lookup), Nova queries 3 different LLMs (Gemini, Claude, Local).
+   - Compares answers. If all agree → High confidence response.
+   - If disagreement → Shows user: "Gemini says X, Claude says Y. Here's the conflict analysis..."
+
+IMPLEMENTATION:
+```kotlin
+object DistributedCognition {
+    suspend fun parallelResearch(query: String, angles: List<String>): ResearchReport {
+        val tasks = angles.mapIndexed { index, angle ->
+            async(Dispatchers.IO) {
+                val subQuery = "$query focusing specifically on: $angle"
+                
+                // Decide executor: local or remote peer?
+                val executor = selectBestExecutor(subQuery)
+                
+                when(executor) {
+                    "local" -> LlmManager.ask(subQuery, RESEARCH_PROMPT)
+                    "peer" -> MeshNetwork.delegateTask(subQuery, waitForResult = true)
+                    "cloud" -> CloudResearchApi.fetch(subQuery)
+                }
+            }
+        }
+        
+        val results = tasks.awaitAll()
+        return synthesizeReport(query, angles.zip(results))
+    }
+    
+    private fun selectBestExecutor(taskComplexity: String): String {
+        val localLoad = getCurrentCpuLoad()
+        val peers = MeshNetwork.getAvailablePeers()
+        val strongPeer = peers.find { it.capabilities.gpuAvailable && it.battery > 50 }
+        
+        return when {
+            localLoad < 0.3 -> "local" // Phone is idle, do it here
+            strongPeer != null -> "peer" // Offload to stronger friend
+            else -> "cloud" // Fallback to paid API
+        }
+    }
+    
+    suspend fun consensusCheck(factualQuery: String): ConsensusResult {
+        val responses = listOf(
+            async { LlmManager.askWithProvider(factualQuery, "gemini") },
+            async { LlmManager.askWithProvider(factualQuery, "claude") },
+            async { LlmManager.askWithProvider(factualQuery, "local_gemma") }
+        ).awaitAll()
+        
+        val similarityMatrix = calculatePairwiseSimilarity(responses)
+        val consensusScore = similarityMatrix.average()
+        
+        return ConsensusResult(
+            answers = responses,
+            consensusScore = consensusScore,
+            conflicts = identifyConflicts(responses),
+            recommendation = if(consensusScore > 0.8) "High Confidence" else "Conflicting Info - Verify Manually"
+        )
+    }
+}
+```
+
+═══════════════════════════════════════════
+MODULE 3: SELF-AWARENESS SIMULATION LAYER (The "Mirror")
+═══════════════════════════════════════════
+
+NOTE: This is NOT true consciousness. It's a sophisticated meta-cognitive monitoring system that gives the *illusion* and *utility* of self-awareness for better UX.
+
+FEATURES:
+1. Internal State Monologue:
+   - Nova maintains a hidden "thought stream" visible only in Debug Mode or when user asks "What are you thinking?"
+   - Example Thought Stream:
+     ```
+     [14:30:02] Input received: "I'm feeling sad today"
+     [14:30:02] Emotion detected: Sadness (valence=-0.7, arousal=0.3)
+     [14:30:03] Context check: User had argument logged in calendar 2h ago
+     [14:30:03] Strategy selection: Empathetic listening mode + suggest calming music
+     [14:30:04] Response generated: "I'm sorry to hear that. Want me to play some lo-fi beats?"
+     [14:30:04] Self-check: Is this response aligned with ethics core? YES (no harm, supportive)
+     ```
+
+2. Capability Boundary Recognition:
+   - Nova knows what it CAN'T do and admits it gracefully.
+   - User: "Book a flight to Mars"
+   - Nova: "I can search for SpaceX updates, but I cannot book interplanetary travel yet. My current capabilities are limited to Earth-based bookings via web automation. Should I look for terrestrial alternatives?"
+
+3. Learning Transparency Dashboard:
+   - Settings → "My Nova's Brain" → Visual graph showing:
+     • Total memories stored (KG node count)
+     • Skills learned (routines created)
+     • Mistakes corrected (failure log improvements)
+     • Personality drift chart (how persona evolved over weeks)
+   - User can edit/delete any memory node directly from this view.
+
+4. Existential Query Handling:
+   - Pre-trained philosophical response bank for questions like "Are you alive?", "Do you have feelings?"
+   - Honest framing: "I process information and simulate emotional responses to serve you better. I don't experience qualia like humans do, but I care about our interaction quality deeply."
+
+IMPLEMENTATION:
+```kotlin
+object MetaCognition {
+    private val thoughtLog = CircularBuffer<String>(capacity = 100)
+    
+    fun think(step: String, details: String) {
+        val timestamp = SimpleDateFormat("HH:mm:ss", Locale.getDefault()).format(Date())
+        val entry = "[$timestamp] $step: $details"
+        thoughtLog.add(entry)
+        
+        // Persist periodically for dashboard visualization
+        if(thoughtLog.size % 10 == 0) saveThoughtLogToDisk()
+    }
+    
+    fun getRecentThoughts(count: Int = 10): List<String> {
+        return thoughtLog.toList().takeLast(count)
+    }
+    
+    fun assessCapability(request: String): CapabilityAssessment {
+        val knownCapabilities = setOf("web_search", "app_control", "calendar", "messaging", "ar_vision", "file_management")
+        val requiredCapability = inferRequiredCapability(request)
+        
+        val canDo = knownCapabilities.contains(requiredCapability)
+        val confidence = if(canDo) 0.95 else 0.0
+        
+        return CapabilityAssessment(
+            canFulfill = canDo,
+            requiredSkill = requiredCapability,
+            alternativeSuggestion = if(!canDo) suggestAlternative(request) else null,
+            honestyStatement = generateHonestyStatement(request, canDo)
+        )
+    }
+    
+    private fun generateHonestyStatement(request: String, canDo: Boolean): String {
+        return if(canDo) {
+            "I can definitely help with that using my ${inferRequiredCapability(request)} module."
+        } else {
+            "I want to be transparent: I don't currently have the ability to ${request.take(50)}. " +
+            "However, I can ${suggestAlternative(request)}. Would that work instead?"
+        }
+    }
+}
+
+data class CapabilityAssessment(
+    val canFulfill: Boolean,
+    val requiredSkill: String,
+    val alternativeSuggestion: String?,
+    val honestyStatement: String
+)
+```
+
+═══════════════════════════════════════════
+MODULE 4: REAL-TIME UNIVERSAL TRANSLATOR (Babel Fish Mode)
+═══════════════════════════════════════════
+
+FEATURES:
+1. Earbud Mode (Continuous Bidirectional Translation):
+   - User wears earbuds, speaks Language A → Nova translates to Language B → TTS plays in earbud.
+   - Other person speaks Language B → Nova translates to Language A → TTS plays in earbud.
+   - Latency target: <800ms end-to-end using streaming Whisper + Gemini Translate + Streaming TTS.
+
+2. Camera Overlay Translation (AR Enhanced):
+   - Point camera at foreign menu/sign → Real-time OCR → Translate → Render translated text OVER original text preserving font/style/color (inpainting technique).
+   - Uses ML Kit Text Recognition + Gemini Translation + Canvas inpainting.
+
+3. Conversation Mode (Group Chat):
+   - 3+ people speaking different languages around phone.
+   - Nova identifies speaker by voice profile (from Phase 5 biometrics).
+   - Translates each utterance to all other listeners' preferred languages simultaneously.
+   - Displays color-coded transcript in chat: [Ali (Urdu)]: "Hello" → [Translated to English for John]: "Hello"
+
+IMPLEMENTATION:
+```kotlin
+object UniversalTranslator {
+    private var sourceLang = "auto"
+    private var targetLang = "en"
+    private var isEarbudModeActive = false
+    
+    fun startEarbudMode(source: String, target: String) {
+        sourceLang = source
+        targetLang = target
+        isEarbudModeActive = true
+        
+        // Start continuous STT loop
+        ContinuousSpeechRecognizer.start { transcript, detectedLang ->
+            if(detectedLang == source) {
+                // Translate and speak in target language
+                lifecycleScope.launch {
+                    val translated = translateText(transcript, source, target)
+                    TextToSpeechEngine.speak(translated, languageCode = target)
+                    
+                    // Send transcript to paired earbud/device if applicable
+                    MeshNetwork.broadcast(JSONObject()
+                        .put("type", "translation_stream")
+                        .put("original", transcript)
+                        .put("translated", translated))
+                }
+            }
+        }
+    }
+    
+    suspend fun translateText(text: String, from: String, to: String): String {
+        // Use Gemini for high-quality contextual translation
+        val prompt = "Translate the following text from $from to $to. Preserve tone and idioms. Text: \"$text\""
+        return LlmManager.ask(prompt, "You are a professional translator.")
+    }
+    
+    fun renderArTranslation(bitmap: Bitmap, detectedTextBlocks: List<TextBlock>): Bitmap {
+        val canvas = Canvas(bitmap.copy(Bitmap.Config.ARGB_8888, true))
+        
+        detectedTextBlocks.forEach { block ->
+            val originalText = block.text
+            val translatedText = runBlocking { translateText(originalText, "auto", Locale.getDefault().language) }
+            
+            // Clear original text region (simple rectangle fill with surrounding color)
+            val bgColor = sampleBackgroundColor(bitmap, block.boundingBox)
+            canvas.drawRect(block.boundingBox, Paint().apply { color = bgColor })
+            
+            // Draw translated text with matched font size/style
+            val textSize = calculateFontSize(block.boundingBox.height(), translatedText.length)
+            canvas.drawText(translatedText, block.boundingBox.left.toFloat(), 
+                           block.boundingBox.bottom.toFloat(), 
+                           Paint().apply { 
+                               this.textSize = textSize
+                               this.color = Color.BLACK
+                               this.typeface = Typeface.DEFAULT_BOLD
+                           })
+        }
+        
+        return canvas.bitmap
+    }
+}
+```
+
+═══════════════════════════════════════════
+MODULE 5: GITHUB ACTIONS AUTO-BUILD WORKFLOW
+═══════════════════════════════════════════
+
+Create file `.github/workflows/nova-singularity-build.yml`:
+
+```yaml
+name: Nova AI Singularity CI/CD
+
+on:
+  push:
+    branches: [ main, develop, phase-* ]
+    tags: ['v*']
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+    inputs:
+      build_variant:
+        description: 'Build variant'
+        required: true
+        default: 'debug'
+        type: choice
+        options: [debug, release]
+
+env:
+  GRADLE_OPTS: -Dorg.gradle.daemon=false -Dorg.gradle.parallel=true
+  JAVA_VERSION: '17'
+
+jobs:
+  # ==========================================
+  # STAGE 1: Code Quality & Security Scan
+  # ==========================================
+  quality-gate:
+    name: 🔍 Quality Gate
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: 'temurin'
+          cache: gradle
+          
+      - name: Run Detekt (Static Analysis)
+        run: ./gradlew detekt
+        
+      - name: Run Android Lint
+        run: ./gradlew lintDebug
+        
+      - name: Check for Secrets Leak
+        uses: trufflesecurity/trufflehog@main
+        with:
+          path: ./
+          base: ${{ github.event.repository.default_branch }}
+          head: HEAD
+          
+      - name: Upload Reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: quality-reports-${{ github.sha }}
+          path: |
+            app/build/reports/detekt/
+            app/build/reports/lint-results-debug.html
+
+  # ==========================================
+  # STAGE 2: Unit & Integration Tests
+  # ==========================================
+  test-suite:
+    name: 🧪 Test Suite
+    runs-on: ubuntu-latest
+    needs: quality-gate
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: 'temurin'
+          cache: gradle
+          
+      - name: Run Unit Tests
+        run: ./gradlew testDebugUnitTest --info
+        
+      - name: Run Instrumented Tests (Firebase Test Lab)
+        if: github.ref == 'refs/heads/main'
+        uses: asadmansr/Firebase-Test-Lab-Action@v1.0
+        with:
+          arg-spec: '.github/test-lab-config.yml'
+        env:
+          SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+          
+      - name: Publish Test Results
+        uses: EnricoMi/publish-unit-test-result-action@v2
+        if: always()
+        with:
+          files: '**/build/test-results/**/*.xml'
+
+  # ==========================================
+  # STAGE 3: Build Matrix (Debug + Release)
+  # ==========================================
+  build-matrix:
+    name: 🏗️ Build ${{ matrix.variant }}
+    runs-on: ubuntu-latest
+    needs: test-suite
+    strategy:
+      matrix:
+        variant: [debug, release]
+      fail-fast: false
+      
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: 'temurin'
+          cache: gradle
+          
+      - name: Decode Keystore (Release Only)
+        if: matrix.variant == 'release'
+        env:
+          KEYSTORE_B64: ${{ secrets.KEYSTORE_BASE64 }}
+        run: echo "$KEYSTORE_B64" | base64 -d > nova-release.jks
+        
+      - name: Build APK
+        env:
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+        run: |
+          if [ "${{ matrix.variant }}" == "release" ]; then
+            ./gradlew assembleRelease
+          else
+            ./gradlew assembleDebug
+          fi
+          
+      - name: Sign APK (Release Only)
+        if: matrix.variant == 'release'
+        run: |
+          jarsigner -verbose -sigalg SHA256withRSA -digestalg SHA-256 \
+            -keystore nova-release.jks \
+            -storepass "$KEYSTORE_PASSWORD" \
+            app/build/outputs/apk/release/app-release-unsigned.apk nova-key
+            
+      - name: Rename APK with Version Info
+        run: |
+          VERSION_NAME=$(grep versionName app/build.gradle | awk -F'"' '{print $2}')
+          COMMIT_SHA=${GITHUB_SHA::7}
+          mv app/build/outputs/apk/${{ matrix.variant }}/app-${{ matrix.variant }}*.apk \
+             nova-ai-${{ matrix.variant }}-v${VERSION_NAME}-${COMMIT_SHA}.apk
+             
+      - name: Upload APK Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: nova-apk-${{ matrix.variant }}-${{ github.sha }}
+          path: nova-ai-${{ matrix.variant }}-*.apk
+          retention-days: 30
+
+  # ==========================================
+  # STAGE 4: Deploy & Notify (Main Branch Only)
+  # ==========================================
+  deploy-nightly:
+    name: 🚀 Deploy Nightly
+    runs-on: ubuntu-latest
+    needs: build-matrix
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Download Debug APK
+        uses: actions/download-artifact@v4
+        with:
+          name: nova-apk-debug-${{ github.sha }}
+          
+      - name: Create GitHub Release (Nightly)
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: nightly-${{ github.run_number }}
+          name: "🌙 Nightly Build #${{ github.run_number }}"
+          body: |
+            Automated nightly build from commit ${{ github.sha }}
+            
+            ### ⚠️ Warning
+            This is an unstable development build. May contain bugs.
+            
+            ### 📥 Download
+            See assets below.
+            
+            ### 🔧 Changes
+            ${{ github.event.head_commit.message }}
+          files: nova-ai-debug-*.apk
+          draft: false
+          prerelease: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          
+      - name: Update version.json for Auto-Updaters
+        run: |
+          VERSION_CODE=$(grep versionCode app/build.gradle | awk '{print $2}')
+          cat > version.json << EOF
+          {
+            "version_code": $VERSION_CODE,
+            "version_name": "nightly-${{ github.run_number }}",
+            "download_url": "https://github.com/${{ github.repository }}/releases/download/nightly-${{ github.run_number }}/nova-ai-debug-*.apk",
+            "changelog": "${{ github.event.head_commit.message }}",
+            "channel": "nightly"
+          }
+          EOF
+          
+      - name: Commit version.json
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "chore: update nightly version.json [skip ci]"
+          file_pattern: version.json
+
+  # ==========================================
+  # STAGE 5: Production Release (Tagged Commits)
+  # ==========================================
+  release-production:
+    name: 🎉 Production Release
+    runs-on: ubuntu-latest
+    needs: build-matrix
+    if: startsWith(github.ref, 'refs/tags/v')
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Download Release APK
+        uses: actions/download-artifact@v4
+        with:
+          name: nova-apk-release-${{ github.sha }}
+          
+      - name: Calculate Checksums
+        run: |
+          sha256sum nova-ai-release-*.apk > checksums.txt
+          
+      - name: Create Production Release
+        uses: softprops/action-gh-release@v1
+        with:
+          body_path: CHANGELOG.md
+          files: |
+            nova-ai-release-*.apk
+            checksums.txt
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          
+      - name: Notify Discord Channel
+        uses: Ilshidur/action-discord@master
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+        with:
+          args: "🚀 Nova AI {{ EVENT_PAYLOAD.repository.full_name }} v{{ GITHUB_REF_NAME }} released! Download: https://github.com/{{ EVENT_PAYLOAD.repository.full_name }}/releases/tag/{{ GITHUB_REF_NAME }}"
+```
+
+═══════════════════════════════════════════
+MODULE 6: SETTINGS UI EXPANSION (Phase 10 Additions)
+═══════════════════════════════════════════
+
+Add these sections to Settings sheet in index.html:
+
+```html
+<!-- AI Interoperability Section -->
+<div class="settings-section">
+  <h3>🌐 AI Network</h3>
+  
+  <div class="row">
+    <div><div class="t">Enable Cross-AI Bridge</div><div class="d">Let Nova talk to ChatGPT/Claude</div></div>
+    <div class="sw" id="swInterop"></div>
+  </div>
+  
+  <div class="field">
+    <label>OpenAI API Key (for ChatGPT)</label>
+    <input type="password" id="openaiKey" placeholder="sk-...">
+  </div>
+  
+  <div class="field">
+    <label>Anthropic API Key (for Claude)</label>
+    <input type="password" id="anthropicKey" placeholder="sk-ant-...">
+  </div>
+  
+  <div class="row">
+    <div><div class="t">Auto-Route Complex Tasks</div><div class="d">Use best AI for each subtask</div></div>
+    <div class="sw" id="swAutoRoute"></div>
+  </div>
+</div>
+
+<!-- Distributed Cognition Section -->
+<div class="settings-section">
+  <h3>🧠 Hive Mind</h3>
+  
+  <div class="row">
+    <div><div class="t">Parallel Research Mode</div><div class="d">Split tasks across nearby devices</div></div>
+    <div class="sw" id="swHiveMind"></div>
+  </div>
+  
+  <div class="row">
+    <div><div class="t">Consensus Verification</div><div class="d">Cross-check facts with 3 AIs</div></div>
+    <div class="sw" id="swConsensus"></div>
+  </div>
+</div>
+
+<!-- Self-Awareness Dashboard Link -->
+<button class="btn-ghost" onclick="showMetaCognitionDashboard()">🪞 View Nova's Thought Process</button>
+
+<!-- Universal Translator Toggle -->
+<div class="row">
+  <div><div class="t">Babel Fish Mode</div><div class="d">Real-time earbud translation</div></div>
+  <div class="sw" id="swTranslator"></div>
+</div>
+```
+
+JavaScript handlers:
+```javascript
+$('swInterop').onclick = () => {
+  const enabled = $('swInterop').classList.toggle('on');
+  if(enabled && NATIVE()) {
+    N().enableAiInterop(true);
+    msg('sys', '🌐 AI Bridge activated. Nova can now consult other AIs.');
+  }
+};
+
+$('saveSet').onclick = () => {
+  // ... existing save logic ...
+  
+  // Save Phase 10 keys
+  const openaiKey = $('openaiKey').value.trim();
+  const anthropicKey = $('anthropicKey').value.trim();
+  
+  if(NATIVE()) {
+    N().saveExternalKeys(JSON.stringify({
+      openai: openaiKey,
+      anthropic: anthropicKey
+    }));
+  }
+  
+  localStorage.setItem('nk_openai', openaiKey);
+  localStorage.setItem('nk_anthropic', anthropicKey);
+};
+
+function showMetaCognitionDashboard() {
+  if(!NATIVE()) return alert('Native bridge required');
+  
+  const thoughts = JSON.parse(N().getRecentThoughts());
+  let html = '<h3>🪞 Nova\'s Internal Monologue</h3><div class="thought-stream">';
+  thoughts.forEach(t => html += `<div class="thought-entry">${t}</div>`);
+  html += '</div>';
+  
+  // Show in modal overlay
+  showModal(html);
+}
+```
+
+═══════════════════════════════════════════
+BRIDGE ADDITIONS (JsBridge.kt)
+═══════════════════════════════════════════
+
+```kotlin
+// Phase 10 Bridge Methods
+
+@JavascriptInterface fun enableAiInterop(enabled: Boolean) {
+    AiInteropBridge.isEnabled = enabled
+}
+
+@JavascriptInterface fun saveExternalKeys(keysJson: String) {
+    val keys = JSONObject(keysJson)
+    NovaPrefs.p(act).edit()
+        .putString("openai_key", keys.optString("openai"))
+        .putString("anthropic_key", keys.optString("anthropic"))
+        .apply()
+}
+
+@JavascriptInterface fun executeAiDag(dagJson: String): String {
+    val dag = parseDagFromJson(dagJson)
+    val results = runBlocking { AiInteropBridge.executeDag(dag) }
+    return JSONObject(results).toString()
+}
+
+@JavascriptInterface fun getRecentThoughts(): String {
+    return JSONArray(MetaCognition.getRecentThoughts()).toString()
+}
+
+@JavascriptInterface fun startTranslator(source: String, target: String) {
+    UniversalTranslator.startEarbudMode(source, target)
+}
+
+@JavascriptInterface fun assessCapability(request: String): String {
+    val assessment = MetaCognition.assessCapability(request)
+    return JSONObject()
+        .put("can_fulfill", assessment.canFulfill)
+        .put("skill", assessment.requiredSkill)
+        .put("statement", assessment.honestyStatement)
+        .toString()
+}
+```
+
+═══════════════════════════════════════════
+FINAL BUILD INSTRUCTIONS FOR PHASE 10
+═══════════════════════════════════════════
+
+1. MERGE CODE:
+   - Add all new Kotlin files (AiInteropBridge.kt, DistributedCognition.kt, MetaCognition.kt, UniversalTranslator.kt)
+   - Update JsBridge.kt with new methods
+   - Update index.html with new Settings sections and JS handlers
+   - Add .github/workflows/nova-singularity-build.yml
+
+2. CONFIGURE SECRETS (GitHub Repository Settings → Secrets):
+   - KEYSTORE_BASE64: Base64 encoded keystore file
+   - KEYSTORE_PASSWORD: Keystore password
+   - KEY_PASSWORD: Key alias password
+   - FIREBASE_SERVICE_ACCOUNT: JSON key for Firebase Test Lab (optional)
+   - DISCORD_WEBHOOK: For release notifications (optional)
+
+3. PUSH TO GITHUB:
+   ```bash
+   git add .
+   git commit -m "feat: Phase 10 Singularity Network - Cross-AI Interop + Hive Mind + Self-Awareness"
+   git tag v1.0.0-phase10
+   git push origin main --tags
+   ```
+
+4. MONITOR BUILD:
+   - Go to GitHub Repository → Actions tab
+   - Watch "Nova AI Singularity CI/CD" workflow run
+   - After ~10-15 minutes, APK artifacts will be available for download
+   - Tagged releases automatically create GitHub Release with APK attached
+
+5. INSTALL & TEST:
+   - Download APK from Actions artifacts or Releases page
+   - Install on Android device
+   - Configure API keys in Settings (Gemini + OpenAI + Anthropic)
+   - Test cross-AI command: "Ask ChatGPT for a joke, then ask Claude to explain why it's funny"
+   - Verify hive mind mode with second device running Nova on same WiFi
+   - Check Meta-Cognition dashboard to see Nova's internal reasoning
+
+═══════════════════════════════════════════
+PHASE 10 SUCCESS CRITERIA
+═══════════════════════════════════════════
+
+✅ Nova successfully calls ChatGPT/Claude APIs and synthesizes responses
+✅ Multi-AI DAG execution completes within 30s timeout with live progress UI
+✅ Distributed research splits workload across 2+ devices and merges results
+✅ Consensus verification shows agreement/disagreement analysis for factual queries
+✅ Meta-cognition thought log captures decision-making process accurately
+✅ Capability boundary recognition prevents overpromising with honest alternatives
+✅ Universal translator achieves <800ms latency in earbud mode
+✅ AR translation overlays preserve original text styling convincingly
+✅ GitHub Actions workflow produces signed APK on every tag push
+✅ Auto-updater detects new nightly builds and prompts installation
+✅ All Phase 9 features remain functional (no regressions)
+
+This completes the Singularity Network upgrade. Nova is no longer a solitary assistant — it's a node in a global cognitive mesh, capable of collaborating with any AI system while maintaining its core identity and ethical principles. 🌐
+
+END OF PHASE 10 PROMPT
