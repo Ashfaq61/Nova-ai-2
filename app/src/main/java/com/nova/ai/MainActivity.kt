@@ -13,19 +13,20 @@ import android.webkit.WebChromeClient
 import android.webkit.WebSettings
 import android.webkit.WebView
 import android.webkit.WebViewClient
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.ComponentActivity
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import com.nova.ai.bridge.JsBridge
+import com.nova.ai.life.PcLinkServer
 import java.util.Locale
 
 class MainActivity : ComponentActivity() {
-    
+
     companion object {
         var instance: MainActivity? = null
             private set
     }
-    
+
     private lateinit var webView: WebView
     private var speechRecognizer: SpeechRecognizer? = null
 
@@ -37,15 +38,15 @@ class MainActivity : ComponentActivity() {
             initSpeechRecognizer()
         }
     }
-    
+
     @SuppressLint("SetJavaScriptEnabled")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         instance = this
-        
+
         webView = WebView(this)
         setContentView(webView)
-        
+
         webView.settings.apply {
             javaScriptEnabled = true
             domStorageEnabled = true
@@ -54,19 +55,43 @@ class MainActivity : ComponentActivity() {
             mixedContentMode = WebSettings.MIXED_CONTENT_ALWAYS_ALLOW
             databaseEnabled = true
         }
-        
+
         webView.webViewClient = WebViewClient()
         webView.webChromeClient = object : WebChromeClient() {
             override fun onPermissionRequest(request: PermissionRequest?) {
                 request?.grant(request.resources)
             }
         }
-        
+
         webView.addJavascriptInterface(JsBridge(this), "Nova")
-        
         webView.loadUrl("file:///android_asset/www/index.html")
 
         checkAndRequestPermissions()
+
+        // Start background PC Link HTTP server on port 8765
+        try {
+            PcLinkServer.start(this, 8765)
+        } catch (e: Exception) {}
+
+        handleWakeIntent(intent)
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        handleWakeIntent(intent)
+    }
+
+    private fun handleWakeIntent(intent: Intent?) {
+        val wake = intent?.getStringExtra("WAKE_TRIGGER")
+        if (wake == "WAKE_UP") {
+            runOnUiThread {
+                webView.evaluateJavascript("if(typeof handleWakeWord==='function') handleWakeWord('wake');", null)
+            }
+        } else if (wake == "SLEEP") {
+            runOnUiThread {
+                webView.evaluateJavascript("if(typeof handleWakeWord==='function') handleWakeWord('sleep');", null)
+            }
+        }
     }
 
     private fun checkAndRequestPermissions() {
@@ -95,7 +120,7 @@ class MainActivity : ComponentActivity() {
                     override fun onEndOfSpeech() {}
                     override fun onError(error: Int) {
                         runOnUiThread {
-                            webView.evaluateJavascript("if(typeof setState==='function') setState('idle','Tap to talk','#00ffa3');", null)
+                            webView.evaluateJavascript("if(typeof window.onNativeSpeechError==='function') window.onNativeSpeechError();", null)
                         }
                     }
                     override fun onResults(results: Bundle?) {
@@ -104,7 +129,7 @@ class MainActivity : ComponentActivity() {
                         if (text.isNotBlank()) {
                             runOnUiThread {
                                 val escaped = text.replace("'", "\\'")
-                                webView.evaluateJavascript("if(typeof ask==='function') ask('$escaped');", null)
+                                webView.evaluateJavascript("if(typeof window.onNativeSpeechResult==='function') window.onNativeSpeechResult('$escaped');", null)
                             }
                         }
                     }
@@ -129,14 +154,20 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
-    
+
+    fun stopVoiceRecognition() {
+        try {
+            speechRecognizer?.stopListening()
+        } catch (e: Exception) {}
+    }
+
     override fun onDestroy() {
         super.onDestroy()
         speechRecognizer?.destroy()
         speechRecognizer = null
         instance = null
     }
-    
+
     @Deprecated("Deprecated in Java")
     override fun onBackPressed() {
         if (::webView.isInitialized && webView.canGoBack()) {

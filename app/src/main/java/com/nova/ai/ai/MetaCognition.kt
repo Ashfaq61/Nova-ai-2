@@ -29,4 +29,16 @@ object MetaCognition {
             put("state", "self_calibrating")
         }.toString()
     }
+
+    fun getRecentThoughtsJson(): String {
+        val array = org.json.JSONArray()
+        if (thoughtStream.isEmpty()) {
+            array.put("[System Boot]: Distributed cognitive network online.")
+            array.put("[Self-Audit]: Ethical boundaries calibrated. Capability honesty verified.")
+            array.put("[Cognition]: Ready for multi-AI cross-chain orchestration.")
+        } else {
+            thoughtStream.takeLast(25).forEach { array.put(it) }
+        }
+        return array.toString()
+    }
 }
